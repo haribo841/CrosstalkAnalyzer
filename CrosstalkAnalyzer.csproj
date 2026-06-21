@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <UsedAvaloniaProducts></UsedAvaloniaProducts>
+  </PropertyGroup>
+  <PropertyGroup Label="Avalonia" />
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <Compile Remove="Tests\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Step1View.axaml.cs">
+      <DependentUpon>Step1View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Step2View.axaml.cs">
+      <DependentUpon>Step2View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Step3View.axaml.cs">
+      <DependentUpon>Step3View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Step4View.axaml.cs">
+      <DependentUpon>Step4View.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+bin/
+obj/
+.appdata/
+.localappdata/
+Tests/**/bin/
+Tests/**/obj/
+*.user
+*.suo
+.vs/

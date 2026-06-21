@@ -1,0 +1,103 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+        x:Class="CrosstalkAnalyzer.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Crosstalk Analyzer — badanie przeników"
+        Width="1180"
+        Height="780"
+        MinWidth="920"
+        MinHeight="650"
+        Background="#F4F6FA"
+        WindowStartupLocation="CenterScreen">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0"
+            Background="#172B4D"
+            Padding="26,20">
+      <Grid ColumnDefinitions="*,360">
+        <StackPanel Spacing="4">
+          <TextBlock Text="CROSSTALK ANALYZER"
+                     Foreground="#8FB3FF"
+                     FontSize="12"
+                     FontWeight="SemiBold"
+                     LetterSpacing="1.5"/>
+          <TextBlock Text="{Binding StepTitle}"
+                     Foreground="White"
+                     FontSize="26"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding StepDescription}"
+                     Foreground="#C9D5EA"
+                     FontSize="13"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Postęp badania"
+                       Foreground="#C9D5EA"/>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding StepCounter}"
+                       Foreground="White"
+                       FontWeight="SemiBold"/>
+          </Grid>
+          <ProgressBar Minimum="0"
+                       Maximum="4"
+                       Value="{Binding ProgressValue}"
+                       Height="8"
+                       Foreground="#4F8CFF"
+                       Background="#30486F"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1"
+            Classes="card"
+            Margin="24,20,24,14"
+            Padding="22">
+      <ContentControl Content="{Binding CurrentStepViewModel}"/>
+    </Border>
+
+    <Border Grid.Row="2"
+            Background="White"
+            BorderBrush="#DDE3EC"
+            BorderThickness="0,1,0,0"
+            Padding="24,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Button Content="← Wstecz"
+                Classes="secondary"
+                Command="{Binding PreviousStepCommand}"/>
+
+        <TextBlock x:Name="ExportStatusText"
+                   Grid.Column="1"
+                   Margin="18,0"
+                   VerticalAlignment="Center"
+                   Foreground="#28734A"
+                   TextWrapping="Wrap"/>
+
+        <StackPanel Grid.Column="2"
+                    Orientation="Horizontal"
+                    Spacing="10">
+          <Button Content="Nowe badanie"
+                  Classes="secondary"
+                  IsVisible="{Binding IsFinalStep}"
+                  Command="{Binding NewAnalysisCommand}"/>
+          <Button Content="Eksportuj CSV"
+                  Classes="primary"
+                  IsVisible="{Binding IsFinalStep}"
+                  Click="ExportCsv_Click"/>
+          <Button Content="Dalej →"
+                  Classes="primary"
+                  IsVisible="{Binding IsNotFinalStep}"
+                  Command="{Binding NextStepCommand}"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.Step1View"
+             x:DataType="vm:Step1ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="Auto,240,*,Auto"
+          ColumnSpacing="12">
+      <TextBlock Text="Badane pasmo"
+                 VerticalAlignment="Center"
+                 FontWeight="SemiBold"/>
+      <ComboBox Grid.Column="1"
+                ItemsSource="{Binding AvailableBands}"
+                SelectedItem="{Binding SelectedBand}"
+                PlaceholderText="Wybierz pasmo"/>
+      <TextBlock Grid.Column="2"
+                 Text="{Binding SelectedBandDescription}"
+                 VerticalAlignment="Center"
+                 Foreground="#59677C"
+                 TextWrapping="Wrap"/>
+      <Button Grid.Column="3"
+              Content="Wstaw dane przykładowe"
+              Classes="secondary"
+              Command="{Binding FillExampleDataCommand}"/>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#EEF4FF"
+            BorderBrush="#CADBFF"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="Wpisuj wartości modułu transmitancji w dB. Typowy przenik ma wartość ujemną, np. −35,4 dB."
+                 Foreground="#244A8A"
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Measurements}"
+              AutoGenerateColumns="False"
+              IsReadOnly="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Częstotliwość [GHz]"
+                            Width="1.1*"
+                            IsReadOnly="True"
+                            Binding="{Binding FrequencyText}"/>
+        <DataGridTextColumn Header="Przenik bliski NEXT |Z| [dB]"
+                            Width="2*"
+                            Binding="{Binding NearCrosstalkDb, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="Przenik daleki FEXT |Z| [dB]"
+                            Width="2*"
+                            Binding="{Binding FarCrosstalkDb, Mode=TwoWay}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <TextBlock Grid.Row="3"
+               Text="{Binding ValidationMessage}"
+               Foreground="#59677C"
+               FontWeight="SemiBold"/>
+  </Grid>
+</UserControl>

@@ -1,0 +1,133 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             x:Class="CrosstalkAnalyzer.Views.Step4View"
+             x:DataType="vm:Step4ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,*,Auto"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Podsumowanie statystyczne"
+                   FontSize="20"
+                   FontWeight="SemiBold"/>
+        <TextBlock Text="Przedział dotyczy średniej serii w wybranym paśmie."
+                   Foreground="#59677C"/>
+      </StackPanel>
+      <Border Grid.Column="1"
+              Background="#F0F4FA"
+              CornerRadius="8"
+              Padding="12,7">
+        <TextBlock Text="{Binding BandName}"
+                   FontWeight="SemiBold"/>
+      </Border>
+    </Grid>
+
+    <Grid Grid.Row="1"
+          ColumnDefinitions="1.08*,1.45*"
+          ColumnSpacing="16">
+      <Border Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <Grid RowDefinitions="Auto,Auto,*"
+              RowSpacing="10">
+          <TextBlock Text="95% przedział ufności średniej"
+                     FontWeight="SemiBold"/>
+          <Border Grid.Row="1"
+                  Background="#172B4D"
+                  CornerRadius="8"
+                  Padding="12">
+            <TextBlock Text="x̄ ± t(0,975; n−1) · s / √n"
+                       Foreground="White"
+                       FontFamily="Consolas"
+                       FontSize="17"
+                       HorizontalAlignment="Center"/>
+          </Border>
+          <DataGrid Grid.Row="2"
+                    ItemsSource="{Binding Statistics}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Seria"
+                                  Width="1.5*"
+                                  Binding="{Binding SeriesName}"/>
+              <DataGridTextColumn Header="n"
+                                  Width="0.45*"
+                                  Binding="{Binding Count}"/>
+              <DataGridTextColumn Header="Średnia"
+                                  Width="1.05*"
+                                  Binding="{Binding MeanText}"/>
+              <DataGridTextColumn Header="σ = s"
+                                  Width="1.05*"
+                                  Binding="{Binding StandardDeviationText}"/>
+              <DataGridTextColumn Header="95% CI"
+                                  Width="2.1*"
+                                  Binding="{Binding ConfidenceIntervalText}"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="1"
+              Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <Grid RowDefinitions="Auto,*,Auto"
+              RowSpacing="8">
+          <Grid ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="14">
+            <TextBlock Text="Przebieg przeników [dB]"
+                       FontWeight="SemiBold"/>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="6">
+              <Border Width="18"
+                      Height="4"
+                      Background="#2563EB"
+                      VerticalAlignment="Center"/>
+              <TextBlock Text="NEXT"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        Spacing="6">
+              <Border Width="18"
+                      Height="4"
+                      Background="#EA580C"
+                      VerticalAlignment="Center"/>
+              <TextBlock Text="FEXT"/>
+            </StackPanel>
+          </Grid>
+          <controls:CrosstalkChart Grid.Row="1"
+                                   MinHeight="250"
+                                   Measurements="{Binding Results}"/>
+          <Grid Grid.Row="2"
+                ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Text="początek pasma"
+                       Foreground="#6A768A"
+                       FontSize="11"/>
+            <TextBlock Grid.Column="2"
+                       Text="koniec pasma"
+                       Foreground="#6A768A"
+                       FontSize="11"/>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="2"
+            Background="#EDF8F1"
+            BorderBrush="#BFE3CC"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="Gotowe. Eksport CSV zawiera wszystkie punkty, błędy analizatora, granice przedziałów oraz podsumowanie statystyczne."
+                 Foreground="#245E3A"
+                 TextWrapping="Wrap"/>
+    </Border>
+  </Grid>
+</UserControl>
