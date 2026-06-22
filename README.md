@@ -1,44 +1,65 @@
-# Crosstalk Analyzer
+# EMC Lab Assistant
 
 Wieloplatformowa aplikacja w C# i Avalonia UI, która prowadzi użytkownika
-krok po kroku przez analizę przeników między liniami mikropaskowymi.
+krok po kroku przez ćwiczenia z kompatybilności elektromagnetycznej.
 
-## Zakres programu
+## Dostępne scenariusze
 
-1. Wybór pasma 1–2 GHz, 2–3 GHz albo 7–8 GHz i wprowadzenie wartości
-   przeniku bliskiego (NEXT) oraz dalekiego (FEXT).
-2. Konwersja z dB do skali liniowej:
-   `|Z|lin = 10^(|Z|dB / 20)`.
-3. Obliczenie błędu analizatora:
-   `ΔZ = |Z|lin · (10^(U_D / 20) − 1)`.
-4. Obliczenie statystyk, 95% przedziału ufności średniej, prezentacja
-   wykresu i eksport pełnego zestawienia do CSV.
+### 1. Pomiar przeników między liniami mikropaskowymi
 
-Dla pasm 1–2 GHz i 2–3 GHz przyjęto `U_D = 0,2 dB`, a dla pasma
-7–8 GHz `U_D = 0,3 dB`. Wartości te są założeniem projektu i przed
-oddaniem sprawozdania należy je porównać z tabelą dokładności używanego
-egzemplarza analizatora R&S ZVL-13.
+- wybór pasma 1–2 GHz, 2–3 GHz albo 7–8 GHz,
+- wprowadzanie wartości NEXT i FEXT,
+- konwersja `|Z|lin = 10^(|Z|dB / 20)`,
+- obliczenie błędu analizatora,
+- statystyka, przedziały ufności, wykres i eksport CSV.
 
-## Założenie statystyczne
+### 2. Sondy pola bliskiego w analizie emisji promieniowanej
 
-Odchylenie standardowe `s` jest liczone osobno z 11 punktów serii NEXT
-i FEXT w całym wybranym paśmie. Przedział ufności dotyczy średniej serii:
+Scenariusz został przygotowany na podstawie instrukcji ćwiczenia nr 2,
+materiału „Obliczenia do pomiarów sondami pola bliskiego”, charakterystyk
+sondy i wzmacniacza oraz wzorca sprawozdania.
 
-`x̄ ± t(0,975; n−1) · s/√n`
+Kreator obejmuje:
 
-Dla 11 punktów program stosuje wartość krytyczną rozkładu t-Studenta
-równą 2,228.
+- listę kontrolną generatora, miernika R&S NRP, sondy H 400-1 i wzmacniacza,
+- zapis warunków środowiskowych,
+- pomiary od 100 MHz do 1000 MHz dla linii 30 Ω, 50 Ω i 100 Ω,
+- edytowalne wartości wzmocnienia `K` i poprawki sondy `Sp`,
+- obliczenie pola magnetycznego:
+
+  `H[dBA/m] = P[dBm] − 30 + 10·log10(50) − K + Sp`,
+
+- konwersję `H[A/m] = 10^(H[dBA/m]/20)`,
+- budżet niepewności:
+
+  `uH = √(uP² + uK² + uSp²)`,
+
+- 95% przedziały z niepewnością rozszerzoną `U = k·uH`,
+- porównanie charakterystyk, maksima oraz trendy w dB/100 MHz i dB/dekadę,
+- eksport kompletnej tabeli do CSV.
+
+Domyślne wartości to `uP = 0,066 dB`, `uK = 0,2 dB`, `uSp = 0,3 dB`
+i `k = 2`, co daje `uH ≈ 0,367 dB` oraz `U ≈ 0,733 dB`.
 
 ## Uruchomienie
 
-Wymagany jest zestaw .NET 8 SDK:
+Wymagany jest .NET 8 SDK:
 
 ```powershell
 dotnet restore
 dotnet run
 ```
 
-Test obliczeń i eksportu:
+AvaloniaUI & DataGrid:
+
+```CLI
+dotnet new install Avalonia.Templates
+dotnet add package Avalonia.Controls.DataGrid
+```
+
+
+
+Test obliczeń, nawigacji i eksportu:
 
 ```powershell
 dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks
@@ -46,13 +67,13 @@ dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks
 
 ## Publikowanie
 
-Samowystarczalna paczka dla 64-bitowego Windows:
+Windows x64:
 
 ```powershell
 dotnet publish -c Release -r win-x64 --self-contained true
 ```
 
-Samowystarczalna paczka dla 64-bitowego Linuksa:
+Linux x64:
 
 ```powershell
 dotnet publish -c Release -r linux-x64 --self-contained true
@@ -63,9 +84,9 @@ Wynik znajduje się w katalogu
 
 ## Zgodność systemowa
 
-Projekt celuje w .NET 8 i Avalonia 12. Jest przeznaczony dla Linuksa
-oraz Windows 10/11. Windows 7 i Windows 8.1 nie są oficjalnie obsługiwane
-przez wymagany runtime .NET 8.
+Projekt celuje w .NET 8 i Avalonia 12. Jest przeznaczony dla Linuksa oraz
+Windows 10/11. Windows 7 i Windows 8.1 nie są oficjalnie obsługiwane przez
+wymagany runtime .NET 8.
 
 - [Platformy obsługiwane przez Avalonia](https://docs.avaloniaui.net/docs/overview/supported-platforms)
 - [Instalacja i wymagania .NET na Windows](https://learn.microsoft.com/dotnet/core/install/windows)

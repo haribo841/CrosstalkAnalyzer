@@ -2,6 +2,7 @@ bin/
 obj/
 .appdata/
 .localappdata/
+.tmp-nearfield/
 Tests/**/bin/
 Tests/**/obj/
 *.user

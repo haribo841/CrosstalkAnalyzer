@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using CrosstalkAnalyzer.Models;
+using CrosstalkAnalyzer.ViewModels;
 
 namespace CrosstalkAnalyzer.Services;
 
@@ -64,6 +65,82 @@ public static class ReportGenerator
         await writer.FlushAsync();
     }
 
+    public static async Task WriteNearFieldCsvAsync(
+        Stream stream,
+        NearFieldStep1ViewModel setup,
+        IReadOnlyCollection<NearFieldResult> results,
+        IReadOnlyCollection<NearFieldSummary> summaries)
+    {
+        await using var writer = new StreamWriter(
+            stream,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: true),
+            leaveOpen: true);
+
+        await writer.WriteLineAsync(
+            "Sondy pola bliskiego w analizie emisji promieniowanej (nr 2)");
+        await writer.WriteLineAsync($"Data eksportu;{DateTime.Now:yyyy-MM-dd HH:mm}");
+        await writer.WriteLineAsync(
+            $"Temperatura [°C];{FormatNullable(setup.TemperatureCelsius)}");
+        await writer.WriteLineAsync(
+            $"Wilgotność [%];{FormatNullable(setup.HumidityPercent)}");
+        await writer.WriteLineAsync(
+            $"Ciśnienie [hPa];{FormatNullable(setup.PressureHpa)}");
+        await writer.WriteLineAsync(
+            $"Niepewności standardowe [dB];uP={Format(setup.PowerMeterUncertaintyDb)};" +
+            $"uK={Format(setup.AmplifierUncertaintyDb)};" +
+            $"uSp={Format(setup.ProbeUncertaintyDb)}");
+        await writer.WriteLineAsync($"Współczynnik rozszerzenia k;{Format(setup.CoverageFactor)}");
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync(
+            "f [MHz];P 30 Ω [dBm];P 50 Ω [dBm];P 100 Ω [dBm];K [dB];Sp [dB];" +
+            "H 30 Ω [dBA/m];H 50 Ω [dBA/m];H 100 Ω [dBA/m];" +
+            "H 30 Ω [A/m];H 50 Ω [A/m];H 100 Ω [A/m];U95 [dB];" +
+            "H30 min;H30 max;H50 min;H50 max;H100 min;H100 max");
+
+        foreach (var row in results)
+        {
+            await writer.WriteLineAsync(string.Join(";",
+                Format(row.FrequencyMHz),
+                Format(row.Power30OhmDbm),
+                Format(row.Power50OhmDbm),
+                Format(row.Power100OhmDbm),
+                Format(row.AmplifierGainDb),
+                Format(row.ProbeCorrectionDb),
+                Format(row.H30OhmDbAm),
+                Format(row.H50OhmDbAm),
+                Format(row.H100OhmDbAm),
+                Format(row.H30OhmAm),
+                Format(row.H50OhmAm),
+                Format(row.H100OhmAm),
+                Format(row.ExpandedUncertaintyDb),
+                Format(row.H30OhmDbAm - row.ExpandedUncertaintyDb),
+                Format(row.H30OhmDbAm + row.ExpandedUncertaintyDb),
+                Format(row.H50OhmDbAm - row.ExpandedUncertaintyDb),
+                Format(row.H50OhmDbAm + row.ExpandedUncertaintyDb),
+                Format(row.H100OhmDbAm - row.ExpandedUncertaintyDb),
+                Format(row.H100OhmDbAm + row.ExpandedUncertaintyDb)));
+        }
+
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync(
+            "Seria;Maksimum H [dBA/m];Częstotliwość maksimum [MHz];" +
+            "Trend [dB/100 MHz];Trend [dB/dekadę]");
+        foreach (var summary in summaries)
+        {
+            await writer.WriteLineAsync(string.Join(";",
+                summary.SeriesName,
+                Format(summary.PeakLevelDbAm),
+                Format(summary.PeakFrequencyMHz),
+                Format(summary.TrendDbPer100MHz),
+                Format(summary.TrendDbPerDecade)));
+        }
+
+        await writer.FlushAsync();
+    }
+
     private static string Format(double value)
         => value.ToString("0.############E+0", PolishCulture);
+
+    private static string FormatNullable(double? value)
+        => value.HasValue ? Format(value.Value) : string.Empty;
 }

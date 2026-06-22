@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.NearFieldStep2View"
+             x:DataType="vm:NearFieldStep2ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="12">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Odczyty miernika i charakterystyk"
+                   FontSize="20"
+                   FontWeight="SemiBold"/>
+        <TextBlock Text="K i Sp zostały wstępnie odczytane z materiałów ćwiczenia. Możesz je poprawić zgodnie z własnym odczytem wykresu."
+                   Foreground="#59677C"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+      <Button Grid.Column="1"
+              Content="Wstaw dane przykładowe"
+              Classes="secondary"
+              Command="{Binding FillExampleDataCommand}"/>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#FFF8ED"
+            BorderBrush="#FED7AA"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="Wpisz maksimum P [dBm] znalezione podczas przesuwania i obracania sondy wzdłuż kabla. Nie przepisuj pierwszego napotkanego wskazania."
+                 Foreground="#8A3B12"
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Measurements}"
+              AutoGenerateColumns="False"
+              IsReadOnly="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="f [MHz]"
+                            Width="0.75*"
+                            IsReadOnly="True"
+                            Binding="{Binding FrequencyText}"/>
+        <DataGridTextColumn Header="P — 30 Ω [dBm]"
+                            Width="1.2*"
+                            Binding="{Binding Power30OhmDbm, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="P — 50 Ω [dBm]"
+                            Width="1.2*"
+                            Binding="{Binding Power50OhmDbm, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="P — 100 Ω [dBm]"
+                            Width="1.2*"
+                            Binding="{Binding Power100OhmDbm, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="K [dB]"
+                            Width="0.9*"
+                            Binding="{Binding AmplifierGainDb, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="Sp [dB]"
+                            Width="0.9*"
+                            Binding="{Binding ProbeCorrectionDb, Mode=TwoWay}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <TextBlock Grid.Row="3"
+               Text="{Binding ValidationMessage}"
+               Foreground="#59677C"
+               FontWeight="SemiBold"/>
+  </Grid>
+</UserControl>

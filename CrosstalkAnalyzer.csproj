@@ -37,5 +37,20 @@
     <Compile Update="Views\Step4View.axaml.cs">
       <DependentUpon>Step4View.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\ScenarioSelectionView.axaml.cs">
+      <DependentUpon>ScenarioSelectionView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\NearFieldStep1View.axaml.cs">
+      <DependentUpon>NearFieldStep1View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\NearFieldStep2View.axaml.cs">
+      <DependentUpon>NearFieldStep2View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\NearFieldStep3View.axaml.cs">
+      <DependentUpon>NearFieldStep3View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\NearFieldStep4View.axaml.cs">
+      <DependentUpon>NearFieldStep4View.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

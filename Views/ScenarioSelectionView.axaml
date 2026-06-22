@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.ScenarioSelectionView"
+             x:DataType="vm:ScenarioSelectionViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,*"
+        RowSpacing="18">
+    <StackPanel Spacing="5">
+      <TextBlock Text="Wybierz ćwiczenie"
+                 FontSize="22"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="Każdy scenariusz zawiera instrukcję krok po kroku, wzory, kontrolę danych i eksport wyników."
+                 Foreground="#59677C"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+
+    <Grid Grid.Row="1"
+          ColumnDefinitions="*,*"
+          ColumnSpacing="18">
+      <Border Classes="card"
+              Background="#F8FAFF"
+              BorderBrush="#C9D8FA">
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="12">
+          <Border Width="54"
+                  Height="54"
+                  Background="#DBEAFE"
+                  CornerRadius="27"
+                  HorizontalAlignment="Left">
+            <TextBlock Text="S₍₂₁₎"
+                       FontSize="17"
+                       FontWeight="Bold"
+                       Foreground="#1D4ED8"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Pomiar przeników między liniami mikropaskowymi"
+                     FontSize="19"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"/>
+          <StackPanel Grid.Row="2"
+                      Spacing="8">
+            <TextBlock Text="• przenik bliski NEXT i daleki FEXT"/>
+            <TextBlock Text="• konwersja dB do skali liniowej"/>
+            <TextBlock Text="• błąd analizatora i 95% przedziały ufności"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Rozpocznij scenariusz →"
+                  Classes="primary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectCrosstalkCommand}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="1"
+              Classes="card"
+              Background="#FFF9F3"
+              BorderBrush="#FED7AA">
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="12">
+          <Border Width="54"
+                  Height="54"
+                  Background="#FFEDD5"
+                  CornerRadius="27"
+                  HorizontalAlignment="Left">
+            <TextBlock Text="H"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#C2410C"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Sondy pola bliskiego w analizie emisji promieniowanej (nr 2)"
+                     FontSize="19"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"/>
+          <StackPanel Grid.Row="2"
+                      Spacing="8">
+            <TextBlock Text="• pomiary kabla dla linii 30 Ω, 50 Ω i 100 Ω"/>
+            <TextBlock Text="• poprawka sondy Sp i wzmocnienie K"/>
+            <TextBlock Text="• pole H, niepewność 95% i analiza trendu"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Rozpocznij scenariusz →"
+                  Classes="primary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectNearFieldCommand}"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

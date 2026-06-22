@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.NearFieldStep1View"
+             x:DataType="vm:NearFieldStep1ViewModel"
+             x:CompileBindings="False">
+  <ScrollViewer>
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          RowSpacing="16">
+      <Grid ColumnDefinitions="1.35*,*"
+            ColumnSpacing="18">
+        <Border Background="#F8FAFD"
+                BorderBrush="#E1E6EF"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Lista kontrolna stanowiska"
+                       FontSize="19"
+                       FontWeight="SemiBold"/>
+            <CheckBox Content="Sonda R&amp;S H 400-1 jest połączona przez wzmacniacz z miernikiem mocy."
+                      IsChecked="{Binding ProbeConnected}"/>
+            <CheckBox Content="Generator: sygnał niemodulowany, moc 10 dBm, częstotliwość zgodna z punktem pomiarowym."
+                      IsChecked="{Binding GeneratorConfigured}"/>
+            <CheckBox Content="Miernik R&amp;S NRP: PRESET i częstotliwość zgodna z generatorem."
+                      IsChecked="{Binding PowerMeterConfigured}"/>
+            <CheckBox Content="Sondę przykładam ściśle do kabla, obracam dla maksimum i przesuwam wzdłuż całego kabla."
+                      IsChecked="{Binding MaximumSearchUnderstood}"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Background="#FFF8ED"
+                BorderBrush="#FED7AA"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Aparatura"
+                       FontSize="19"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="• generator sygnału"/>
+            <TextBlock Text="• miernik mocy R&amp;S NRP z sondą"/>
+            <TextBlock Text="• sonda H 400-1, zestaw R&amp;S HZ-15"/>
+            <TextBlock Text="• wzmacniacz R&amp;S HZ-16, tor 50 Ω"/>
+            <TextBlock Text="• płytki PCB: 30 Ω, 50 Ω i 100 Ω"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Grid.Row="1"
+              Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <Grid ColumnDefinitions="Auto,120,Auto,120,Auto,120"
+              ColumnSpacing="10">
+          <TextBlock Text="Temperatura [°C]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="1" Text="{Binding TemperatureCelsius}"/>
+          <TextBlock Grid.Column="2" Text="Wilgotność [%]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="3" Text="{Binding HumidityPercent}"/>
+          <TextBlock Grid.Column="4" Text="Ciśnienie [hPa]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="5" Text="{Binding PressureHpa}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2"
+              Background="#EEF4FF"
+              BorderBrush="#CADBFF"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="14">
+        <TextBlock Text="Zakres: 100–1000 MHz, krok 100 MHz. Dla każdej częstotliwości wykonaj pomiar kolejno z płytką 30 Ω, 50 Ω i 100 Ω."
+                   Foreground="#244A8A"
+                   TextWrapping="Wrap"/>
+      </Border>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

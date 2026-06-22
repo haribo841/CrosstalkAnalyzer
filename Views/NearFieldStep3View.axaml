@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.NearFieldStep3View"
+             x:DataType="vm:NearFieldStep3ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="1.45*,*"
+          ColumnSpacing="14">
+      <Border Background="#172B4D"
+              CornerRadius="10"
+              Padding="16">
+        <StackPanel Spacing="5">
+          <TextBlock Text="RÓWNANIE PRZETWARZANIA"
+                     Foreground="#8FB3FF"
+                     FontSize="11"
+                     FontWeight="Bold"/>
+          <TextBlock Text="H[dBA/m] = P[dBm] − 30 + 10·log₁₀(50) − K + Sp"
+                     Foreground="White"
+                     FontFamily="Consolas"
+                     FontSize="18"/>
+          <TextBlock Text="H[A/m] = 10 ^ (H[dBA/m] / 20)"
+                     Foreground="#D9E4F7"
+                     FontFamily="Consolas"
+                     FontSize="15"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="1"
+              Background="#EEF4FF"
+              BorderBrush="#CADBFF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <StackPanel Spacing="5">
+          <TextBlock Text="BUDŻET NIEPEWNOŚCI"
+                     FontSize="11"
+                     FontWeight="Bold"
+                     Foreground="#315FAD"/>
+          <TextBlock Text="{Binding CombinedUncertaintyText, StringFormat='uH = {0} dB'}"
+                     FontSize="17"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding ExpandedUncertaintyText, StringFormat='U95 = k·uH = {0} dB'}"
+                     FontSize="17"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#F8FAFD"
+            BorderBrush="#E1E6EF"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="10">
+      <TextBlock Text="uH = √(uP² + uK² + uSp²), gdzie uP = 0,066 dB, uK = 0,2 dB, uSp = 0,3 dB; dla k = 2 otrzymujemy U95 ≈ 0,73 dB."
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Results}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="f [MHz]" Width="0.65*" Binding="{Binding FrequencyText}"/>
+        <DataGridTextColumn Header="K [dB]" Width="0.7*" Binding="{Binding AmplifierGainText}"/>
+        <DataGridTextColumn Header="Sp [dB]" Width="0.7*" Binding="{Binding ProbeCorrectionText}"/>
+        <DataGridTextColumn Header="H 30 Ω [dBA/m]" Width="1.15*" Binding="{Binding H30OhmText}"/>
+        <DataGridTextColumn Header="95% przedział 30 Ω" Width="1.6*" Binding="{Binding H30IntervalText}"/>
+        <DataGridTextColumn Header="H 50 Ω [dBA/m]" Width="1.15*" Binding="{Binding H50OhmText}"/>
+        <DataGridTextColumn Header="95% przedział 50 Ω" Width="1.6*" Binding="{Binding H50IntervalText}"/>
+        <DataGridTextColumn Header="H 100 Ω [dBA/m]" Width="1.15*" Binding="{Binding H100OhmText}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

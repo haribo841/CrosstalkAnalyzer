@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             x:Class="CrosstalkAnalyzer.Views.NearFieldStep4View"
+             x:DataType="vm:NearFieldStep4ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,*,Auto"
+        RowSpacing="14">
+    <StackPanel Spacing="4">
+      <TextBlock Text="Porównanie emisji kabla"
+                 FontSize="20"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="Dodatnia szybkość zmian oznacza narastanie poziomu H wraz z częstotliwością."
+                 Foreground="#59677C"/>
+    </StackPanel>
+
+    <Grid Grid.Row="1"
+          ColumnDefinitions="1.05*,1.45*"
+          ColumnSpacing="16">
+      <DataGrid ItemsSource="{Binding Summaries}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Seria" Width="1.35*" Binding="{Binding SeriesName}"/>
+          <DataGridTextColumn Header="Maks. H [dBA/m]" Width="1.05*" Binding="{Binding PeakLevelText}"/>
+          <DataGridTextColumn Header="f maks. [MHz]" Width="0.9*" Binding="{Binding PeakFrequencyText}"/>
+          <DataGridTextColumn Header="dB / 100 MHz" Width="1.05*" Binding="{Binding TrendPer100MHzText}"/>
+          <DataGridTextColumn Header="dB / dekadę" Width="1.05*" Binding="{Binding TrendPerDecadeText}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <Border Grid.Column="1"
+              Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <Grid RowDefinitions="Auto,*,Auto"
+              RowSpacing="8">
+          <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                ColumnSpacing="12">
+            <TextBlock Text="Natężenie pola H [dBA/m]"
+                       FontWeight="SemiBold"/>
+            <TextBlock Grid.Column="1" Text="● 30 Ω" Foreground="#2563EB"/>
+            <TextBlock Grid.Column="2" Text="● 50 Ω" Foreground="#16A34A"/>
+            <TextBlock Grid.Column="3" Text="● 100 Ω" Foreground="#EA580C"/>
+          </Grid>
+          <controls:NearFieldChart Grid.Row="1"
+                                   MinHeight="275"
+                                   Measurements="{Binding Results}"/>
+          <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Text="100 MHz" Foreground="#6A768A" FontSize="11"/>
+            <TextBlock Grid.Column="2" Text="1000 MHz" Foreground="#6A768A" FontSize="11"/>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="2"
+            Background="#EDF8F1"
+            BorderBrush="#BFE3CC"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="Do sprawozdania wyeksportuj tabelę P, K, Sp, H w obu skalach, przedziały 95%, maksima i oszacowane szybkości zmian."
+                 Foreground="#245E3A"
+                 TextWrapping="Wrap"/>
+    </Border>
+  </Grid>
+</UserControl>
