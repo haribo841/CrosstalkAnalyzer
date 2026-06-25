@@ -16,7 +16,7 @@
     </StackPanel>
 
     <Grid Grid.Row="1"
-          ColumnDefinitions="*,*"
+          ColumnDefinitions="*,*,*"
           ColumnSpacing="18">
       <Border Classes="card"
               Background="#F8FAFF"
@@ -88,6 +88,43 @@
                   Classes="primary"
                   HorizontalAlignment="Left"
                   Command="{Binding SelectNearFieldCommand}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="2"
+              Classes="card"
+              Background="#F6FFF9"
+              BorderBrush="#BBE5C8">
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="12">
+          <Border Width="54"
+                  Height="54"
+                  Background="#DCFCE7"
+                  CornerRadius="27"
+                  HorizontalAlignment="Left">
+            <TextBlock Text="E"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#15803D"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Emisja promieniowana — poprawka antenowa EN55032 (nr 3)"
+                     FontSize="19"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"/>
+          <StackPanel Grid.Row="2"
+                      Spacing="8">
+            <TextBlock Text="• przeliczenie MR, AF i IL na pole E"/>
+            <TextBlock Text="• korekta dipola dla polaryzacji pionowej"/>
+            <TextBlock Text="• limit EN55032, przedział 95% i wykres"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Rozpocznij scenariusz →"
+                  Classes="primary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectRadiatedEmissionCommand}"/>
         </Grid>
       </Border>
     </Grid>

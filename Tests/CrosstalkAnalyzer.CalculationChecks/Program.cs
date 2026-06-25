@@ -124,3 +124,80 @@ if (wizard.CurrentStep != 4 ||
 }
 
 Console.WriteLine("Testy scenariusza sond pola bliskiego zakończone powodzeniem.");
+
+AssertClose(
+    -2.39,
+    RadiatedEmissionLogic.CalculateAntennaFactorDb(30),
+    0.01,
+    "Poprawka antenowa dipola dla 30 MHz");
+AssertClose(
+    3.71,
+    RadiatedEmissionLogic.CalculateVerticalCorrectionDb(
+        RadiatedEmissionLogic.CalculateElevationAngleDeg(2.82, 3)),
+    0.01,
+    "Korekta pionowa AF dla 30 MHz");
+AssertClose(
+    Math.Sqrt(0.2 * 0.2 + 0.8 * 0.8 + 0.2 * 0.2),
+    RadiatedEmissionLogic.CalculateExpandedUncertaintyDb(0.2, 0.8, 0.2),
+    1e-12,
+    "Niepewność emisji promieniowanej");
+
+var radiatedPoint = new RadiatedEmissionMeasurementPoint
+{
+    FrequencyMHz = 200,
+    CableLossDb = 1.12,
+    HorizontalReadingDbuv = 31.63,
+    HorizontalAntennaHeightM = 3.59,
+    VerticalReadingDbuv = 30.85,
+    VerticalAntennaHeightM = 3.06,
+};
+var radiatedResult = RadiatedEmissionLogic.Calculate(
+    radiatedPoint,
+    3,
+    0.2,
+    0.8,
+    0.2);
+AssertClose(14.09, radiatedResult.HorizontalAntennaFactorDb, 0.01, "AF 200 MHz");
+AssertClose(50.21, radiatedResult.VerticalFieldDbuvPerM, 0.02, "E pionowe 200 MHz");
+AssertClose(40, radiatedResult.LimitDbuvPerM, 1e-12, "Limit EN55032 200 MHz");
+
+var radiatedSummary = RadiatedEmissionLogic.Summarize([radiatedResult]);
+await using var radiatedStream = new MemoryStream();
+await ReportGenerator.WriteRadiatedEmissionCsvAsync(
+    radiatedStream,
+    new RadiatedEmissionStep1ViewModel(),
+    [radiatedResult],
+    radiatedSummary);
+var radiatedCsv = Encoding.UTF8.GetString(radiatedStream.ToArray());
+if (!radiatedCsv.Contains("AF V corr", StringComparison.Ordinal) ||
+    !radiatedCsv.Contains("EN55032", StringComparison.Ordinal))
+{
+    throw new InvalidOperationException(
+        "Eksport scenariusza emisji promieniowanej nie zawiera wymaganych sekcji.");
+}
+
+var radiatedWizard = new MainWindowViewModel();
+radiatedWizard.ScenarioSelection.SelectRadiatedEmissionCommand.Execute(null);
+if (radiatedWizard.CurrentScenario != AnalysisScenario.RadiatedEmissionAntennaCorrection ||
+    radiatedWizard.CurrentStep != 1)
+{
+    throw new InvalidOperationException("Nie uruchomiono scenariusza emisji promieniowanej.");
+}
+
+radiatedWizard.RadiatedEmissionStep1.MeasurementDistanceConfirmed = true;
+radiatedWizard.RadiatedEmissionStep1.HorizontalPolarizationConfirmed = true;
+radiatedWizard.RadiatedEmissionStep1.VerticalPolarizationConfirmed = true;
+radiatedWizard.RadiatedEmissionStep1.UncertaintyBudgetConfirmed = true;
+radiatedWizard.NextStepCommand.Execute(null);
+radiatedWizard.RadiatedEmissionStep2.FillExampleDataCommand.Execute(null);
+radiatedWizard.NextStepCommand.Execute(null);
+radiatedWizard.NextStepCommand.Execute(null);
+
+if (radiatedWizard.CurrentStep != 4 ||
+    radiatedWizard.RadiatedEmissionStep4.Results.Count != 21 ||
+    radiatedWizard.RadiatedEmissionStep4.Summary.ExceedanceCount == 0)
+{
+    throw new InvalidOperationException("Kreator emisji promieniowanej nie przygotował podsumowania.");
+}
+
+Console.WriteLine("Testy scenariusza emisji promieniowanej zakończone powodzeniem.");

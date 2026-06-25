@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.RadiatedEmissionStep3View"
+             x:DataType="vm:RadiatedEmissionStep3ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="1.45*,*"
+          ColumnSpacing="14">
+      <Border Background="#172B4D"
+              CornerRadius="10"
+              Padding="16">
+        <StackPanel Spacing="5">
+          <TextBlock Text="RÓWNANIE PRZETWARZANIA"
+                     Foreground="#8FB3FF"
+                     FontSize="11"
+                     FontWeight="Bold"/>
+          <TextBlock Text="E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]"
+                     Foreground="White"
+                     FontFamily="Consolas"
+                     FontSize="18"/>
+          <TextBlock Text="AF_V_corr = AF + korekta(α),  α = atan(hV / 3 m)"
+                     Foreground="#D9E4F7"
+                     FontFamily="Consolas"
+                     FontSize="15"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="1"
+              Background="#EEF4FF"
+              BorderBrush="#CADBFF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <StackPanel Spacing="5">
+          <TextBlock Text="NIEPEWNOŚĆ 95%"
+                     FontSize="11"
+                     FontWeight="Bold"
+                     Foreground="#315FAD"/>
+          <TextBlock Text="{Binding ExpandedUncertaintyText, StringFormat='U_E = {0} dB'}"
+                     FontSize="17"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="U_E = √(U_MR² + U_AF² + U_IL²)"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#F8FAFD"
+            BorderBrush="#E1E6EF"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="10">
+      <TextBlock Text="Dla polaryzacji pionowej aplikacja wyznacza kąt elewacji oraz spadek zysku dipola półfalowego, a następnie przelicza go na dodatkową poprawkę antenową."
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Results}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="f [MHz]" Width="0.65*" Binding="{Binding FrequencyText}"/>
+        <DataGridTextColumn Header="AF H [dB/m]" Width="0.9*" Binding="{Binding HorizontalAntennaFactorText}"/>
+        <DataGridTextColumn Header="α V [°]" Width="0.75*" Binding="{Binding VerticalAngleText}"/>
+        <DataGridTextColumn Header="korekta V [dB]" Width="1.0*" Binding="{Binding VerticalCorrectionText}"/>
+        <DataGridTextColumn Header="AF V corr [dB/m]" Width="1.1*" Binding="{Binding VerticalCorrectedAntennaFactorText}"/>
+        <DataGridTextColumn Header="E H [dBµV/m]" Width="1.05*" Binding="{Binding HorizontalFieldText}"/>
+        <DataGridTextColumn Header="E V [dBµV/m]" Width="1.05*" Binding="{Binding VerticalFieldText}"/>
+        <DataGridTextColumn Header="maks. pol." Width="0.9*" Binding="{Binding MaximumPolarizationText}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

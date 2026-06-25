@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.RadiatedEmissionStep2View"
+             x:DataType="vm:RadiatedEmissionStep2ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="12">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Surowe wyniki pomiaru"
+                   FontSize="20"
+                   FontWeight="SemiBold"/>
+        <TextBlock Text="Wprowadź tłumienie kabla, wskazanie analizatora i wysokość anteny, przy której wystąpiło maksimum."
+                   Foreground="#59677C"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+      <Button Grid.Column="1"
+              Content="Wstaw dane przykładowe"
+              Classes="secondary"
+              Command="{Binding FillExampleDataCommand}"/>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#FFF8ED"
+            BorderBrush="#FED7AA"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="Częstotliwości zgodne z instrukcją: 30 MHz, 50 MHz, następnie od 100 MHz do 1000 MHz co 50 MHz. Wysokości anteny powinny mieścić się w zakresie 1-4 m."
+                 Foreground="#8A3B12"
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Measurements}"
+              AutoGenerateColumns="False"
+              IsReadOnly="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="f [MHz]"
+                            Width="0.75*"
+                            IsReadOnly="True"
+                            Binding="{Binding FrequencyText}"/>
+        <DataGridTextColumn Header="IL [dB]"
+                            Width="0.8*"
+                            Binding="{Binding CableLossDb, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="MR H [dBµV]"
+                            Width="1.15*"
+                            Binding="{Binding HorizontalReadingDbuv, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="h H [m]"
+                            Width="0.85*"
+                            Binding="{Binding HorizontalAntennaHeightM, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="MR V [dBµV]"
+                            Width="1.15*"
+                            Binding="{Binding VerticalReadingDbuv, Mode=TwoWay}"/>
+        <DataGridTextColumn Header="h V [m]"
+                            Width="0.85*"
+                            Binding="{Binding VerticalAntennaHeightM, Mode=TwoWay}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <TextBlock Grid.Row="3"
+               Text="{Binding ValidationMessage}"
+               Foreground="#59677C"
+               FontWeight="SemiBold"/>
+  </Grid>
+</UserControl>

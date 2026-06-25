@@ -138,6 +138,73 @@ public static class ReportGenerator
         await writer.FlushAsync();
     }
 
+    public static async Task WriteRadiatedEmissionCsvAsync(
+        Stream stream,
+        RadiatedEmissionStep1ViewModel setup,
+        IReadOnlyCollection<RadiatedEmissionResult> results,
+        RadiatedEmissionSummary summary)
+    {
+        await using var writer = new StreamWriter(
+            stream,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: true),
+            leaveOpen: true);
+
+        await writer.WriteLineAsync(
+            "Emisja promieniowana - poprawka antenowa, scenariusz EN55032 (nr 3)");
+        await writer.WriteLineAsync($"Data eksportu;{DateTime.Now:yyyy-MM-dd HH:mm}");
+        await writer.WriteLineAsync($"Odległość pomiarowa [m];{Format(setup.MeasurementDistanceMeters)}");
+        await writer.WriteLineAsync(
+            $"Niepewności 95% [dB];U_MR={Format(setup.ReceiverUncertaintyDb)};" +
+            $"U_AF={Format(setup.AntennaFactorUncertaintyDb)};" +
+            $"U_IL={Format(setup.CableLossUncertaintyDb)}");
+        await writer.WriteLineAsync(
+            $"U_E=sqrt(U_MR^2+U_AF^2+U_IL^2) [dB];{Format(summary.ExpandedUncertaintyDb)}");
+        await writer.WriteLineAsync(
+            "Konwencja marginesu;wartość dodatnia oznacza przekroczenie limitu po dodaniu U_E, wartość ujemna oznacza zapas");
+        await writer.WriteLineAsync();
+
+        await writer.WriteLineAsync(
+            "f [MHz];IL [dB];MR H [dBµV];h H [m];MR V [dBµV];h V [m];" +
+            "AF H [dB/m];alfa V [deg];korekta V [dB];AF V corr [dB/m];" +
+            "E H [dBµV/m];E V [dBµV/m];maks. pol.;E max [dBµV/m];" +
+            "dolna 95% [dBµV/m];górna 95% [dBµV/m];limit EN55032 [dBµV/m];" +
+            "+ przekroczenie / - zapas [dB];ocena");
+
+        foreach (var row in results)
+        {
+            await writer.WriteLineAsync(string.Join(";",
+                Format(row.FrequencyMHz),
+                Format(row.CableLossDb),
+                Format(row.HorizontalReadingDbuv),
+                Format(row.HorizontalAntennaHeightM),
+                Format(row.VerticalReadingDbuv),
+                Format(row.VerticalAntennaHeightM),
+                Format(row.HorizontalAntennaFactorDb),
+                Format(row.VerticalAngleDeg),
+                Format(row.VerticalCorrectionDb),
+                Format(row.VerticalCorrectedAntennaFactorDb),
+                Format(row.HorizontalFieldDbuvPerM),
+                Format(row.VerticalFieldDbuvPerM),
+                row.MaximumPolarizationText,
+                Format(row.MaxFieldDbuvPerM),
+                Format(row.LowerConfidenceLimitDbuvPerM),
+                Format(row.UpperConfidenceLimitDbuvPerM),
+                Format(row.LimitDbuvPerM),
+                Format(row.MarginWithUncertaintyDb),
+                row.VerdictText));
+        }
+
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync("Podsumowanie");
+        await writer.WriteLineAsync($"Liczba punktów;{summary.FrequencyCountText}");
+        await writer.WriteLineAsync($"Liczba przekroczeń;{summary.ExceedanceCountText}");
+        await writer.WriteLineAsync($"Częstotliwość krytyczna [MHz];{summary.WorstFrequencyText}");
+        await writer.WriteLineAsync($"Największy margines [dB];{summary.WorstMarginText}");
+        await writer.WriteLineAsync(summary.VerdictText);
+
+        await writer.FlushAsync();
+    }
+
     private static string Format(double value)
         => value.ToString("0.############E+0", PolishCulture);
 

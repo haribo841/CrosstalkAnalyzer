@@ -52,5 +52,17 @@
     <Compile Update="Views\NearFieldStep4View.axaml.cs">
       <DependentUpon>NearFieldStep4View.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\RadiatedEmissionStep1View.axaml.cs">
+      <DependentUpon>RadiatedEmissionStep1View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\RadiatedEmissionStep2View.axaml.cs">
+      <DependentUpon>RadiatedEmissionStep2View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\RadiatedEmissionStep3View.axaml.cs">
+      <DependentUpon>RadiatedEmissionStep3View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\RadiatedEmissionStep4View.axaml.cs">
+      <DependentUpon>RadiatedEmissionStep4View.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,119 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             x:Class="CrosstalkAnalyzer.Views.RadiatedEmissionStep4View"
+             x:DataType="vm:RadiatedEmissionStep4ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,*,Auto"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="*,*,*,*"
+          ColumnSpacing="12">
+      <Border Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="12">
+        <StackPanel>
+          <TextBlock Text="Punkty pomiarowe" Foreground="#59677C"/>
+          <TextBlock Text="{Binding Summary.FrequencyCountText}"
+                     FontSize="24"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="1"
+              Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="12">
+        <StackPanel>
+          <TextBlock Text="U_E 95% [dB]" Foreground="#59677C"/>
+          <TextBlock Text="{Binding Summary.ExpandedUncertaintyText}"
+                     FontSize="24"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="2"
+              Background="#FFF8ED"
+              BorderBrush="#FED7AA"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="12">
+        <StackPanel>
+          <TextBlock Text="Największy margines" Foreground="#8A3B12"/>
+          <TextBlock Text="{Binding Summary.WorstMarginText}"
+                     FontSize="24"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="3"
+              Background="#EEF4FF"
+              BorderBrush="#CADBFF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="12">
+        <StackPanel>
+          <TextBlock Text="f krytyczna [MHz]" Foreground="#315FAD"/>
+          <TextBlock Text="{Binding Summary.WorstFrequencyText}"
+                     FontSize="24"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Grid Grid.Row="1"
+          RowDefinitions="1.05*,1.15*"
+          RowSpacing="14">
+      <Border Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <Grid RowDefinitions="Auto,*,Auto"
+              RowSpacing="8">
+          <Grid ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="12">
+            <TextBlock Text="Maksymalna emisja z przedziałem 95% vs limit EN55032"
+                       FontWeight="SemiBold"/>
+            <TextBlock Grid.Column="1" Text="● emisja" Foreground="#2563EB"/>
+            <TextBlock Grid.Column="2" Text="● limit" Foreground="#DC2626"/>
+          </Grid>
+          <controls:RadiatedEmissionChart Grid.Row="1"
+                                          MinHeight="230"
+                                          Measurements="{Binding Results}"/>
+          <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Text="30 MHz" Foreground="#6A768A" FontSize="11"/>
+            <TextBlock Grid.Column="2" Text="1000 MHz" Foreground="#6A768A" FontSize="11"/>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <DataGrid Grid.Row="1"
+                ItemsSource="{Binding Results}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="f [MHz]" Width="0.65*" Binding="{Binding FrequencyText}"/>
+          <DataGridTextColumn Header="maks. pol." Width="0.85*" Binding="{Binding MaximumPolarizationText}"/>
+          <DataGridTextColumn Header="E max [dBµV/m]" Width="1.05*" Binding="{Binding MaxFieldText}"/>
+          <DataGridTextColumn Header="95% przedział" Width="1.35*" Binding="{Binding ConfidenceIntervalText}"/>
+          <DataGridTextColumn Header="limit" Width="0.7*" Binding="{Binding LimitText}"/>
+          <DataGridTextColumn Header="+ przekr. / - zapas [dB]" Width="1.45*" Binding="{Binding MarginText}"/>
+          <DataGridTextColumn Header="ocena" Width="0.9*" Binding="{Binding VerdictText}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+    </Grid>
+
+    <Border Grid.Row="2"
+            Background="#EDF8F1"
+            BorderBrush="#BFE3CC"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="{Binding Summary.VerdictText}"
+                 Foreground="#245E3A"
+                 TextWrapping="Wrap"/>
+    </Border>
+  </Grid>
+</UserControl>

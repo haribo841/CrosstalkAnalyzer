@@ -5,4 +5,5 @@ public enum AnalysisScenario
     None,
     Crosstalk,
     NearFieldProbes,
+    RadiatedEmissionAntennaCorrection,
 }

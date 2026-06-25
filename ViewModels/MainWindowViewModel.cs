@@ -21,6 +21,11 @@ public sealed class MainWindowViewModel : ViewModelBase
     public NearFieldStep3ViewModel NearFieldStep3 { get; } = new();
     public NearFieldStep4ViewModel NearFieldStep4 { get; } = new();
 
+    public RadiatedEmissionStep1ViewModel RadiatedEmissionStep1 { get; } = new();
+    public RadiatedEmissionStep2ViewModel RadiatedEmissionStep2 { get; } = new();
+    public RadiatedEmissionStep3ViewModel RadiatedEmissionStep3 { get; } = new();
+    public RadiatedEmissionStep4ViewModel RadiatedEmissionStep4 { get; } = new();
+
     public AnalysisScenario CurrentScenario
     {
         get => _currentScenario;
@@ -55,6 +60,8 @@ public sealed class MainWindowViewModel : ViewModelBase
             "Pomiar przeników między liniami mikropaskowymi",
         AnalysisScenario.NearFieldProbes =>
             "Sondy pola bliskiego w analizie emisji promieniowanej",
+        AnalysisScenario.RadiatedEmissionAntennaCorrection =>
+            "Emisja promieniowana — poprawka antenowa EN55032",
         _ => "Wybierz scenariusz laboratoryjny",
     };
 
@@ -75,6 +82,14 @@ public sealed class MainWindowViewModel : ViewModelBase
             2 => "Pomiary linii 30 Ω, 50 Ω i 100 Ω",
             3 => "Pole magnetyczne i niepewność",
             4 => "Porównanie charakterystyk",
+            _ => string.Empty,
+        },
+        AnalysisScenario.RadiatedEmissionAntennaCorrection => CurrentStep switch
+        {
+            1 => "Założenia EN55032",
+            2 => "Surowe wyniki MR i wysokości anteny",
+            3 => "Poprawka antenowa i pole E",
+            4 => "Limit, przedziały ufności i wykres",
             _ => string.Empty,
         },
         _ => string.Empty,
@@ -100,6 +115,14 @@ public sealed class MainWindowViewModel : ViewModelBase
             4 => "Oceń maksima oraz szybkość zmian charakterystyk częstotliwościowych.",
             _ => string.Empty,
         },
+        AnalysisScenario.RadiatedEmissionAntennaCorrection => CurrentStep switch
+        {
+            1 => "Potwierdź geometrię pomiaru, polaryzacje i budżet niepewności.",
+            2 => "Wpisz MR, tłumienie kabla IL i wysokości anteny z maksimum sygnału.",
+            3 => "Oblicz AF dipola, korektę pionową i poziom pola elektrycznego E.",
+            4 => "Wybierz maksimum z polaryzacji i porównaj wynik z limitem EN55032.",
+            _ => string.Empty,
+        },
         _ => string.Empty,
     };
 
@@ -116,6 +139,12 @@ public sealed class MainWindowViewModel : ViewModelBase
             {
                 1 => NearFieldStep1.CanGoNext,
                 2 => NearFieldStep2.CanGoNext,
+                _ => true,
+            },
+            AnalysisScenario.RadiatedEmissionAntennaCorrection => CurrentStep switch
+            {
+                1 => RadiatedEmissionStep1.CanGoNext,
+                2 => RadiatedEmissionStep2.CanGoNext,
                 _ => true,
             },
             _ => false,
@@ -135,7 +164,8 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         ScenarioSelection = new ScenarioSelectionViewModel(
             () => SelectScenario(AnalysisScenario.Crosstalk),
-            () => SelectScenario(AnalysisScenario.NearFieldProbes));
+            () => SelectScenario(AnalysisScenario.NearFieldProbes),
+            () => SelectScenario(AnalysisScenario.RadiatedEmissionAntennaCorrection));
         _currentStepViewModel = ScenarioSelection;
 
         NextStepCommand = new RelayCommand(GoNext, () => CanGoNext);
@@ -146,13 +176,17 @@ public sealed class MainWindowViewModel : ViewModelBase
         Step1.PropertyChanged += ValidationPropertyChanged;
         NearFieldStep1.PropertyChanged += ValidationPropertyChanged;
         NearFieldStep2.PropertyChanged += ValidationPropertyChanged;
+        RadiatedEmissionStep1.PropertyChanged += ValidationPropertyChanged;
+        RadiatedEmissionStep2.PropertyChanged += ValidationPropertyChanged;
     }
 
     private void ValidationPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(Step1ViewModel.CanGoNext)
             or nameof(NearFieldStep1ViewModel.CanGoNext)
-            or nameof(NearFieldStep2ViewModel.CanGoNext))
+            or nameof(NearFieldStep2ViewModel.CanGoNext)
+            or nameof(RadiatedEmissionStep1ViewModel.CanGoNext)
+            or nameof(RadiatedEmissionStep2ViewModel.CanGoNext))
         {
             OnPropertyChanged(nameof(CanGoNext));
             NextStepCommand.NotifyCanExecuteChanged();
@@ -163,9 +197,13 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         CurrentScenario = scenario;
         CurrentStep = 1;
-        CurrentStepViewModel = scenario == AnalysisScenario.Crosstalk
-            ? Step1
-            : NearFieldStep1;
+        CurrentStepViewModel = scenario switch
+        {
+            AnalysisScenario.Crosstalk => Step1,
+            AnalysisScenario.NearFieldProbes => NearFieldStep1,
+            AnalysisScenario.RadiatedEmissionAntennaCorrection => RadiatedEmissionStep1,
+            _ => ScenarioSelection,
+        };
     }
 
     private void GoNext()
@@ -174,6 +212,8 @@ public sealed class MainWindowViewModel : ViewModelBase
             GoNextCrosstalk();
         else if (CurrentScenario == AnalysisScenario.NearFieldProbes)
             GoNextNearField();
+        else if (CurrentScenario == AnalysisScenario.RadiatedEmissionAntennaCorrection)
+            GoNextRadiatedEmission();
     }
 
     private void GoNextCrosstalk()
@@ -215,6 +255,26 @@ public sealed class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private void GoNextRadiatedEmission()
+    {
+        switch (CurrentStep)
+        {
+            case 1:
+                SetStep(2, RadiatedEmissionStep2);
+                break;
+            case 2:
+                RadiatedEmissionStep3.Prepare(
+                    RadiatedEmissionStep2.Measurements,
+                    RadiatedEmissionStep1);
+                SetStep(3, RadiatedEmissionStep3);
+                break;
+            case 3:
+                RadiatedEmissionStep4.Prepare(RadiatedEmissionStep3.Results);
+                SetStep(4, RadiatedEmissionStep4);
+                break;
+        }
+    }
+
     private void GoBack()
     {
         var step = CurrentStep - 1;
@@ -231,6 +291,12 @@ public sealed class MainWindowViewModel : ViewModelBase
                 1 => NearFieldStep1,
                 2 => NearFieldStep2,
                 _ => NearFieldStep3,
+            },
+            AnalysisScenario.RadiatedEmissionAntennaCorrection => step switch
+            {
+                1 => RadiatedEmissionStep1,
+                2 => RadiatedEmissionStep2,
+                _ => RadiatedEmissionStep3,
             },
             _ => ScenarioSelection,
         };
@@ -249,6 +315,12 @@ public sealed class MainWindowViewModel : ViewModelBase
             NearFieldStep1.Reset();
             NearFieldStep2.Reset();
             SetStep(1, NearFieldStep1);
+        }
+        else if (CurrentScenario == AnalysisScenario.RadiatedEmissionAntennaCorrection)
+        {
+            RadiatedEmissionStep1.Reset();
+            RadiatedEmissionStep2.Reset();
+            SetStep(1, RadiatedEmissionStep1);
         }
     }
 

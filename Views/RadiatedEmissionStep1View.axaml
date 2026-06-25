@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.RadiatedEmissionStep1View"
+             x:DataType="vm:RadiatedEmissionStep1ViewModel"
+             x:CompileBindings="False">
+  <ScrollViewer>
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          RowSpacing="16">
+      <Grid ColumnDefinitions="1.35*,*"
+            ColumnSpacing="18">
+        <Border Background="#F8FAFD"
+                BorderBrush="#E1E6EF"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Lista kontrolna scenariusza EN55032"
+                       FontSize="19"
+                       FontWeight="SemiBold"/>
+            <CheckBox Content="Przyjmuję odległość pomiarową 3 m i zakres 30-1000 MHz."
+                      IsChecked="{Binding MeasurementDistanceConfirmed}"/>
+            <CheckBox Content="Dla polaryzacji poziomej używam standardowej poprawki AF dipola półfalowego."
+                      IsChecked="{Binding HorizontalPolarizationConfirmed}"/>
+            <CheckBox Content="Dla polaryzacji pionowej uwzględniam korektę wynikającą z kąta elewacji anteny."
+                      IsChecked="{Binding VerticalPolarizationConfirmed}"/>
+            <CheckBox Content="Uwzględniam niepewności: miernik 0,2 dB, AF 0,8 dB, kabel 0,2 dB."
+                      IsChecked="{Binding UncertaintyBudgetConfirmed}"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Background="#F1F8FF"
+                BorderBrush="#C9DDFC"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Założenia obliczeń"
+                       FontSize="19"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="E = MR + AF + IL"
+                       FontFamily="Consolas"
+                       FontSize="18"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="AF = 20·log10(9,73 / (λ·√G)), G = 1,64"
+                       TextWrapping="Wrap"/>
+            <TextBlock Text="Limit EN55032 klasa B, 3 m: 40 dBµV/m dla 30-230 MHz oraz 47 dBµV/m dla 230-1000 MHz."
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Grid.Row="1"
+              Background="#FFF8ED"
+              BorderBrush="#FED7AA"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <Grid ColumnDefinitions="Auto,110,Auto,110,Auto,110,Auto,110"
+              ColumnSpacing="10">
+          <TextBlock Text="Odległość [m]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="1" Text="{Binding MeasurementDistanceMeters}"/>
+          <TextBlock Grid.Column="2" Text="U(MR) [dB]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="3" Text="{Binding ReceiverUncertaintyDb}"/>
+          <TextBlock Grid.Column="4" Text="U(AF) [dB]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="5" Text="{Binding AntennaFactorUncertaintyDb}"/>
+          <TextBlock Grid.Column="6" Text="U(IL) [dB]" VerticalAlignment="Center"/>
+          <TextBox Grid.Column="7" Text="{Binding CableLossUncertaintyDb}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2"
+              Background="#EDF8F1"
+              BorderBrush="#BFE3CC"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="14">
+        <TextBlock Text="W kolejnym kroku wpiszesz surowe wskazania analizatora MR [dBµV], tłumienie kabla IL [dB] i wysokości anteny dla polaryzacji poziomej oraz pionowej."
+                   Foreground="#245E3A"
+                   TextWrapping="Wrap"/>
+      </Border>
+    </Grid>
+  </ScrollViewer>
+</UserControl>
