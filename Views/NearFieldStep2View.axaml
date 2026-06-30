@@ -15,10 +15,12 @@
                    Foreground="#59677C"
                    TextWrapping="Wrap"/>
       </StackPanel>
-      <Button Grid.Column="1"
-              Content="Wstaw dane przykładowe"
-              Classes="secondary"
-              Command="{Binding FillExampleDataCommand}"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Content="Importuj CSV" Classes="secondary" Click="ImportCsv_Click"/>
+        <Button Content="Wstaw dane przykładowe"
+                Classes="secondary"
+                Command="{Binding FillExampleDataCommand}"/>
+      </StackPanel>
     </Grid>
 
     <Border Grid.Row="1"
@@ -41,13 +43,13 @@
                             Width="0.75*"
                             IsReadOnly="True"
                             Binding="{Binding FrequencyText}"/>
-        <DataGridTextColumn Header="P — 30 Ω [dBm]"
+        <DataGridTextColumn Header="P - 30 Ω [dBm]"
                             Width="1.2*"
                             Binding="{Binding Power30OhmDbm, Mode=TwoWay}"/>
-        <DataGridTextColumn Header="P — 50 Ω [dBm]"
+        <DataGridTextColumn Header="P - 50 Ω [dBm]"
                             Width="1.2*"
                             Binding="{Binding Power50OhmDbm, Mode=TwoWay}"/>
-        <DataGridTextColumn Header="P — 100 Ω [dBm]"
+        <DataGridTextColumn Header="P - 100 Ω [dBm]"
                             Width="1.2*"
                             Binding="{Binding Power100OhmDbm, Mode=TwoWay}"/>
         <DataGridTextColumn Header="K [dB]"
@@ -59,9 +61,9 @@
       </DataGrid.Columns>
     </DataGrid>
 
-    <TextBlock Grid.Row="3"
-               Text="{Binding ValidationMessage}"
-               Foreground="#59677C"
-               FontWeight="SemiBold"/>
+    <StackPanel Grid.Row="3" Spacing="4">
+      <TextBlock Text="{Binding ImportStatus}" Foreground="#315FAD"/>
+      <TextBlock Text="{Binding ValidationMessage}" Foreground="#59677C" FontWeight="SemiBold"/>
+    </StackPanel>
   </Grid>
 </UserControl>

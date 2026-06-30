@@ -15,10 +15,17 @@ public sealed class Step3ViewModel : ViewModelBase
         foreach (var result in results)
             Results.Add(result);
 
-        var uncertainty = Results.FirstOrDefault()?.AnalyzerUncertaintyDb ?? 0;
+        var uncertainties = Results
+            .SelectMany(result => new[]
+            {
+                result.NearAnalyzerUncertaintyDb,
+                result.FarAnalyzerUncertaintyDb,
+            })
+            .DefaultIfEmpty(0)
+            .ToArray();
         UncertaintyDescription =
-            $"Dla wybranego pasma przyjęto U_D = {uncertainty:0.0} dB " +
-            "zgodnie z założoną specyfikacją analizatora R&S ZVL-13.";
+            $"Dokładność U_D jest przechowywana oddzielnie dla NEXT i FEXT w każdym punkcie. " +
+            $"W bieżącej tabeli zakres wynosi {uncertainties.Min():0.0}-{uncertainties.Max():0.0} dB.";
         OnPropertyChanged(nameof(UncertaintyDescription));
     }
 }

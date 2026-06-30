@@ -37,7 +37,7 @@ AUTHOR = "Adam Kubiś"
 LECTURER = "dr inż. Piotr Górniak"
 COURSE = "Kompatybilność elektromagnetyczna"
 PROJECT = "EMC Lab Assistant"
-VERSION = "1.0"
+VERSION = "2.0"
 DATE = "czerwiec 2026"
 
 
@@ -440,6 +440,7 @@ def create_diagrams():
         NAVY, BLUE, LIGHT_BLUE, ORANGE, LIGHT_ORANGE, GREEN, LIGHT_GREEN,
         INK, MUTED, GRID, LIGHT_GRAY, WHITE, BLACK, "F8FAFD", "FAFBFD",
         "8FB3FF", "D9E4F7", "AFC0DA", "30486F", "4F8CFF", "E9EEF8",
+        "F3E8FF", "6D28D9",
     ]:
         ImageColor.colormap[color.lower()] = f"#{color}"
 
@@ -456,7 +457,7 @@ def create_diagrams():
         ((80, 150, 1520, 280), "Warstwa prezentacji (Avalonia XAML)\nMainWindow, wybór scenariusza, widoki kroków", LIGHT_BLUE, BLUE),
         ((80, 340, 1520, 490), "Warstwa ViewModel (MVVM)\nnawigacja, walidacja, stan kreatorów, komendy", "F4F6FA", NAVY),
         ((80, 550, 740, 720), "Modele danych\npunkty pomiarowe, wyniki, statystyki", LIGHT_GREEN, GREEN),
-        ((860, 550, 1520, 720), "Usługi domenowe\nobliczenia, generowanie częstotliwości, eksport CSV", LIGHT_ORANGE, ORANGE),
+        ((860, 550, 1520, 720), "Usługi domenowe\nobliczenia, import CSV/MAT, eksport CSV/DOCX", LIGHT_ORANGE, ORANGE),
     ]
     for rect, text, fill, outline in blocks:
         d.rounded_rectangle(rect, radius=22, fill=fill, outline=outline, width=4)
@@ -467,38 +468,37 @@ def create_diagrams():
     img.save(ASSETS / "architektura.png")
 
     # Scenario flow
-    img = Image.new("RGB", (1600, 950), WHITE)
+    img = Image.new("RGB", (1600, 1080), WHITE)
     d = ImageDraw.Draw(img)
-    d.text((60, 35), "Przebieg pracy w aplikacji", font=title, fill=NAVY)
+    d.text((60, 35), "Przebieg czterech kreatorów pomiarowych", font=title, fill=NAVY)
     start = (560, 110, 1040, 205)
     d.rounded_rectangle(start, radius=28, fill=NAVY)
-    draw_centered_text(d, start, "Wybór scenariusza", bold, WHITE)
-    left_x, right_x = 110, 850
-    for x, heading, fill, outline in [
-        (left_x, "Przeniki mikropaskowe", LIGHT_BLUE, BLUE),
-        (right_x, "Sondy pola bliskiego", LIGHT_ORANGE, ORANGE),
-    ]:
-        rect = (x, 285, x + 640, 375)
+    draw_centered_text(d, start, "Wybór kreatora", bold, WHITE)
+    scenario_cards = [
+        (80, 285, "Przeniki mikropaskowe", LIGHT_BLUE, BLUE,
+         ["1. Dane NEXT/FEXT", "2. Skala liniowa", "3. Błąd analizatora", "4. Statystyka i wykres"]),
+        (460, 285, "Sondy pola bliskiego", LIGHT_ORANGE, ORANGE,
+         ["1. Stanowisko", "2. Pomiary 30/50/100 Ω", "3. Pole H i U95", "4. Porównanie trendów"]),
+        (840, 285, "Emisja EN55032", LIGHT_GREEN, GREEN,
+         ["1. Założenia", "2. MR, IL i wysokości", "3. AF i pole E", "4. Limit i margines"]),
+        (1220, 285, "Pomiary propagacyjne", "F3E8FF", "6D28D9",
+         ["1. Stanowisko DVB-T", "2. Siatka 16 punktów", "3. Pole E", "4. Eav ± T"]),
+    ]
+    for x, y, heading, fill, outline, steps in scenario_cards:
+        rect = (x, y, x + 300, y + 78)
         d.rounded_rectangle(rect, radius=20, fill=fill, outline=outline, width=4)
-        draw_centered_text(d, rect, heading, bold, NAVY)
-    left_steps = ["1. Dane NEXT/FEXT", "2. Skala liniowa", "3. Błąd analizatora", "4. Statystyka i wykres"]
-    right_steps = ["1. Stanowisko", "2. Pomiary 30/50/100 Ω", "3. Pole H i U95", "4. Porównanie trendów"]
-    for col_x, steps, fill, outline in [
-        (left_x, left_steps, LIGHT_BLUE, BLUE),
-        (right_x, right_steps, LIGHT_ORANGE, ORANGE),
-    ]:
+        draw_centered_text(d, rect, heading, small, NAVY, max_width=260)
         for i, step in enumerate(steps):
-            y = 420 + i * 105
-            rect = (col_x + 45, y, col_x + 595, y + 72)
-            d.rounded_rectangle(rect, radius=16, fill=fill, outline=outline, width=2)
-            draw_centered_text(d, rect, step, small, INK)
-    d.line((800, 205, 430, 285), fill=MUTED, width=4)
-    d.line((800, 205, 1170, 285), fill=MUTED, width=4)
-    export_rect = (560, 855, 1040, 930)
+            sy = 410 + i * 112
+            step_rect = (x, sy, x + 300, sy + 72)
+            d.rounded_rectangle(step_rect, radius=16, fill=fill, outline=outline, width=2)
+            draw_centered_text(d, step_rect, step, small, INK, max_width=255)
+        d.line((800, 205, x + 150, 285), fill=MUTED, width=4)
+    export_rect = (560, 965, 1040, 1040)
     d.rounded_rectangle(export_rect, radius=20, fill=LIGHT_GREEN, outline=GREEN, width=4)
-    draw_centered_text(d, export_rect, "Eksport wyników do CSV", bold, GREEN)
-    d.line((430, 807, 650, 855), fill=MUTED, width=4)
-    d.line((1170, 807, 950, 855), fill=MUTED, width=4)
+    draw_centered_text(d, export_rect, "Eksport wyników do CSV lub DOCX", bold, GREEN)
+    for x, *_ in scenario_cards:
+        d.line((x + 150, 930, 800, 965), fill=MUTED, width=4)
     img.save(ASSETS / "przeplyw_scenariuszy.png")
 
     # UI map
@@ -546,7 +546,7 @@ def technical_document():
 
     add_heading(doc, "1. Cel i zakres dokumentu")
     add_body(doc, "Dokument opisuje budowę programu EMC Lab Assistant, jego odpowiedzialności funkcjonalne, architekturę, modele danych, algorytmy obliczeniowe, sposób budowania, testowania i publikowania. Jest przeznaczony dla osoby rozwijającej lub oceniającej kod źródłowy.")
-    add_callout(doc, "Zakres wersji 1.0", "Program obsługuje dwa kompletne scenariusze laboratoryjne: pomiar przeników między liniami mikropaskowymi oraz sondy pola bliskiego w analizie emisji promieniowanej.", "info")
+    add_callout(doc, "Zakres wersji 2.0", "Program obsługuje cztery operacyjne scenariusze laboratoryjne, moduł nauki oraz ekran pokrycia materiału. Dwa ćwiczenia wymienione w sylabusie oczekują na instrukcje źródłowe i nie są prezentowane jako gotowe.", "info")
 
     add_heading(doc, "2. Wymagania systemowe")
     add_table(
@@ -557,9 +557,9 @@ def technical_document():
             ("Interfejs", "Graficzny kreator krok po kroku", "Avalonia XAML, cztery kroki w każdym scenariuszu"),
             ("Wieloplatformowość", "Windows i Linux", "Avalonia Desktop oraz publikacja self-contained"),
             ("Walidacja", "Blokada przejścia przy niepełnych danych", "Warunki CanGoNext i komendy MVVM"),
-            ("Obliczenia", "Wzory laboratoryjne i niepewność", "Oddzielne usługi CrosstalkLogic i NearFieldLogic"),
-            ("Prezentacja", "Tabele, wzory i wykresy", "DataGrid oraz własne kontrolki wykresów"),
-            ("Eksport", "Dane do sprawozdania", "Plik CSV UTF-8 z separatorem średnikowym"),
+            ("Obliczenia", "Wzory laboratoryjne i niepewność", "Oddzielne usługi obliczeniowe dla czterech scenariuszy"),
+            ("Prezentacja", "Tabele, wzory i wykresy", "DataGrid, CSharpMath oraz własne kontrolki wykresów"),
+            ("Eksport", "Dane do sprawozdania", "CSV UTF-8 oraz sformatowany raport DOCX"),
         ],
         [1600, 3300, 4460],
     )
@@ -570,9 +570,12 @@ def technical_document():
         ["Składnik", "Wersja", "Zastosowanie"],
         [
             ("Microsoft .NET", "8.0", "Runtime, biblioteka standardowa i narzędzia publikowania"),
-            ("Avalonia", "12.0.4", "Wieloplatformowy interfejs użytkownika"),
-            ("Avalonia.Controls.DataGrid", "12.0.0", "Edycja i prezentacja tabel pomiarowych"),
+            ("Avalonia", "12.0.5", "Wieloplatformowy interfejs użytkownika"),
+            ("Avalonia.Controls.DataGrid", "12.0.1", "Edycja i prezentacja tabel pomiarowych"),
             ("CommunityToolkit.Mvvm", "8.4.1", "ObservableObject, komendy i generatory właściwości"),
+            ("CSharpMath.Avalonia", "12.0.0", "Skład równań matematycznych w interfejsie"),
+            ("DocumentFormat.OpenXml", "3.5.1", "Generowanie raportów DOCX"),
+            ("MatFileHandler", "1.3.0", "Import wyników MATLAB ćwiczenia nr 3"),
             ("Inter", "pakiet Avalonia", "Spójna typografia interfejsu"),
         ],
         [2400, 1200, 5760],
@@ -587,13 +590,21 @@ def technical_document():
         ["Warstwa / moduł", "Odpowiedzialność"],
         [
             ("MainWindowViewModel", "Wybór scenariusza, bieżący krok, komendy Wstecz/Dalej, restart i zmiana scenariusza."),
-            ("ScenarioSelectionViewModel", "Udostępnienie komend uruchamiających jeden z dwóch scenariuszy."),
+            ("ScenarioSelectionViewModel", "Udostępnienie czterech kreatorów, modułu nauki i rejestru pokrycia."),
             ("Step1–Step4ViewModel", "Stan i obliczenia kreatora pomiaru przeników."),
             ("NearFieldStep1–Step4ViewModel", "Stanowisko, dane pomiarowe, pole H, niepewność i podsumowanie sond."),
+            ("RadiatedEmissionStep1–Step4ViewModel", "Założenia EN55032, surowe MR/IL, poprawka antenowa, limit i margines."),
+            ("PropagationStep1–Step4ViewModel", "Stanowisko DVB-T, siatka 16 punktów, pole E, średnia przestrzenna i tolerancja."),
             ("CrosstalkLogic", "Konwersja dB, błąd analizatora, statystyka i przedział ufności."),
             ("NearFieldLogic", "Przeliczenie mocy na H, niepewność złożona, maksimum i regresja trendu."),
-            ("ReportGenerator", "Eksport wyników obu scenariuszy do CSV."),
-            ("CrosstalkChart / NearFieldChart", "Rysowanie przebiegów bez zewnętrznej biblioteki wykresowej."),
+            ("RadiatedEmissionLogic", "Antenna Factor dipola, korekta pionowa, pole E, U95 i margines EN55032."),
+            ("PropagationLogic", "Konwersja odczytów na µV, pole E, średnia przestrzenna i tolerancja Eav ± T."),
+            ("LearningViewModel", "Siedem bloków wykładowych, pytania kontrolne i trzy kalkulatory EMC."),
+            ("SourceRequirementsViewModel", "Jawne wskazanie materiałów, których nie wolno odtwarzać bez instrukcji."),
+            ("MeasurementImportService", "Walidowany import CSV/TXT dla czterech scenariuszy."),
+            ("MatRadiatedEmissionImporter", "Import struktury Data z plików MATLAB ćwiczenia nr 3."),
+            ("ReportGenerator / DocxReportGenerator", "Eksport wyników do CSV oraz raportu DOCX."),
+            ("Kontrolki wykresów i wzorów", "Wykresy, mapy cieplne oraz skład LaTeX przez CSharpMath."),
         ],
         [2750, 6610],
     )
@@ -605,7 +616,7 @@ def technical_document():
         "MainWindowViewModel ustawia właściwy ViewModel pierwszego kroku.",
         "Dane wejściowe są walidowane na bieżąco; komenda Dalej jest aktywna dopiero po spełnieniu wymagań.",
         "Przy przejściu do następnego kroku tworzona jest kolekcja wyników obliczeniowych.",
-        "Krok końcowy agreguje statystyki, maksima i trendy oraz udostępnia eksport CSV.",
+        "Krok końcowy agreguje statystyki, maksima i trendy oraz udostępnia eksport CSV i DOCX.",
     ])
 
     add_heading(doc, "6. Modele danych")
@@ -620,6 +631,12 @@ def technical_document():
             ("NearFieldMeasurementPoint", "f, moce dla 30/50/100 Ω, K oraz Sp."),
             ("NearFieldResult", "Pole H w dBA/m i A/m oraz U95 dla trzech impedancji."),
             ("NearFieldSummary", "Maksimum, częstotliwość maksimum i nachylenie charakterystyki."),
+            ("RadiatedEmissionMeasurementPoint", "f, IL, MR i wysokości anteny dla polaryzacji H/V."),
+            ("RadiatedEmissionResult", "AF, korekta pionowa, pola E, limit EN55032, przedział i margines."),
+            ("RadiatedEmissionSummary", "Liczba punktów, liczba przekroczeń i punkt krytyczny."),
+            ("PropagationMeasurementPoint", "Numer punktu i poziomy dla polaryzacji poziomej oraz pionowej."),
+            ("PropagationResult", "U[µV], E[µV/m], E[dBµV/m] i silniejsza polaryzacja."),
+            ("PropagationSummary", "Eav, uE, tolerancja, przedział i punkt maksimum."),
         ],
         [2700, 6660],
     )
@@ -629,29 +646,46 @@ def technical_document():
     add_equation(doc, "Delta Z = |Z|lin · (10^(UD / 20) - 1)", "Błąd bezwzględny wynikający z niepewności amplitudy analizatora.")
     add_body(doc, "Dla każdego punktu wyznaczane są granice max(0, |Z|lin - Delta Z) oraz |Z|lin + Delta Z. Dla serii NEXT i FEXT program oblicza średnią, odchylenie standardowe z próby, błąd standardowy oraz przedział ufności średniej z rozkładu t-Studenta.")
     add_equation(doc, "CI95 = x̄ ± t(0,975; n-1) · s / √n", "Dla 11 punktów wartość krytyczna wynosi 2,228.")
-    add_callout(doc, "Założenie", "W wersji 1.0 niepewność UD jest przypisana do pasma: 0,2 dB dla 1–3 GHz i 0,3 dB dla 7–8 GHz. W zastosowaniu metrologicznym należy ją skonfrontować z poziomem sygnału i tabelą dokładności konkretnego analizatora.", "warning")
+    add_callout(doc, "Założenie", "Wartości początkowe UD wynoszą 0,2 dB dla 1-3 GHz i 0,3 dB dla 7-8 GHz, ale użytkownik może ustawić osobne U NEXT i U FEXT. W zastosowaniu metrologicznym należy je skonfrontować z poziomem sygnału i tabelą dokładności konkretnego analizatora.", "warning")
 
     add_heading(doc, "8. Algorytmy scenariusza sond pola bliskiego")
     add_equation(doc, "H[dBA/m] = P[dBm] - 30 + 10·log10(50) - K + Sp", "P - odczyt miernika mocy, K - wzmocnienie toru, Sp - poprawka sondy.")
     add_equation(doc, "H[A/m] = 10^(H[dBA/m] / 20)")
-    add_equation(doc, "uH = √(uP² + uK² + uSp² + ur²)", "Składnik ur jest przygotowany w warstwie logiki; w bieżącym kreatorze przyjmuje 0.")
+    add_equation(doc, "uH = √(uP² + uK² + uSp² + uRep²)", "Składnik powtarzalności uRep jest edytowany w pierwszym kroku i uwzględniany w budżecie.")
     add_equation(doc, "U95 = k · uH", "Domyślnie uP=0,066 dB, uK=0,2 dB, uSp=0,3 dB, k=2; U95≈0,733 dB.")
     add_body(doc, "Program wyznacza maksimum pola osobno dla linii 30 Ω, 50 Ω i 100 Ω. Szybkość zmian jest szacowana regresją liniową jako dB/100 MHz oraz dB/dekadę częstotliwości.")
 
-    add_heading(doc, "9. Walidacja i obsługa błędów")
+    add_heading(doc, "9. Algorytmy scenariusza emisji promieniowanej EN55032")
+    add_equation(doc, "AF = 20·log10(9,73 / (λ·√G)),    G = 1,64", "Poprawka antenowa dipola półfalowego dla polaryzacji poziomej.")
+    add_equation(doc, "α = atan(hV / d)", "Kąt elewacji dla polaryzacji pionowej; domyślna odległość d = 3 m.")
+    add_equation(doc, "E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]", "Równanie przetwarzania zgodne z instrukcją ćwiczenia nr 3.")
+    add_equation(doc, "UE = √(UMR² + UAF² + UIL²)", "Domyślnie UMR=0,2 dB, UAF=0,8 dB i UIL=0,2 dB.")
+    add_body(doc, "Dla każdej częstotliwości program liczy pole dla obu polaryzacji, wybiera większą wartość, dodaje niepewność 95% i porównuje wynik z limitem EN55032 klasy B dla odległości 3 m. Limit wynosi 40 dBµV/m dla 30-230 MHz oraz 47 dBµV/m powyżej 230 MHz.")
+
+    add_heading(doc, "10. Algorytmy scenariusza pomiarów propagacyjnych DVB-T")
+    add_equation(doc, "U[µV] = 10^(-L[dB] / 20)", "Konwencja historyczna dla ujemnych odczytów zapisanych w sprawozdaniach z ćwiczenia nr 4.")
+    add_equation(doc, "AF[1/m] = 10^(AF[dB/m] / 20)")
+    add_equation(doc, "E[µV/m] = U[µV] · AF[1/m] · 10^(ac/20)", "ac oznacza tłumienie toru antenowego/kabla w dB.")
+    add_equation(doc, "Eav ± T", "Wynik końcowy dla polaryzacji jest średnią przestrzenną z tolerancją wynikającą z rozrzutu punktów, niepewności odbiornika i AF.")
+    add_body(doc, "Program obsługuje siatkę 16 punktów pomiarowych dla sygnału DVB-T około 522 MHz. Użytkownik wybiera konwencję danych wejściowych: zapis historyczny, dBµV albo dBm dla 50 Ω. AF jest interpolowany z tabeli UHALP 9108 A1 dla wybranego profilu lub może być podany ręcznie. Wyniki są liczone osobno dla obu polaryzacji i prezentowane również jako mapy cieplne 4 × 4.")
+
+    add_heading(doc, "11. Walidacja i obsługa błędów")
     add_bullets(doc, [
         "NEXT i FEXT muszą mieścić się w zakresie od -200 dB do 0 dB.",
         "Moce w scenariuszu sond muszą mieścić się w zakresie od -150 dBm do 30 dBm.",
         "Wszystkie punkty wymagają kompletu wartości K i Sp.",
         "Krok przygotowania stanowiska wymaga zaznaczenia czterech pozycji listy kontrolnej.",
+        "Scenariusz EN55032 wymaga kompletu MR, IL i wysokości anteny dla obu polaryzacji.",
+        "Scenariusz propagacyjny wymaga 16 par odczytów dla polaryzacji poziomej i pionowej.",
         "Anulowanie okna zapisu nie zmienia stanu analizy.",
-        "Błąd zapisu CSV jest prezentowany użytkownikowi w dolnym pasku okna.",
+        "Import wymaga właściwej liczby punktów i poprawnych kolumn; błąd jest opisany przy tabeli.",
+        "Błąd zapisu CSV lub DOCX jest prezentowany użytkownikowi w dolnym pasku okna.",
     ])
 
-    add_heading(doc, "10. Eksport danych")
-    add_body(doc, "ReportGenerator zapisuje pliki UTF-8 z BOM i separatorem średnikowym, dzięki czemu wyniki są czytelne w polskiej konfiguracji arkusza kalkulacyjnego. Eksport przeników zawiera dane punktowe i statystyki. Eksport sond zawiera warunki środowiskowe, budżet niepewności, wyniki w dBA/m i A/m, granice U95, maksima i trendy.")
+    add_heading(doc, "12. Import i eksport danych")
+    add_body(doc, "MeasurementImportService odczytuje CSV/TXT z separatorem średnikowym, tabulatorem lub przecinkiem i obsługuje polski oraz niezmienny format liczb. Scenariusz nr 3 dodatkowo odczytuje pliki MATLAB z polami Pomiar_H, Pomiar_V, H2_H, H2_VH i IL. ReportGenerator zapisuje CSV UTF-8 z BOM. DocxReportGenerator tworzy raport Word z metadanymi, równaniami, tabelami wyników, podsumowaniem i miejscem na wnioski.")
 
-    add_heading(doc, "11. Budowanie i publikowanie")
+    add_heading(doc, "13. Budowanie i publikowanie")
     add_code(doc, [
         "dotnet restore",
         "dotnet build CrosstalkAnalyzer.sln -c Release",
@@ -661,7 +695,7 @@ def technical_document():
     ])
     add_callout(doc, "Zgodność", "Samowystarczalna publikacja nie wymaga instalacji .NET na komputerze docelowym, ale nadal podlega wymaganiom systemowym .NET 8 i Avalonia.", "info")
 
-    add_heading(doc, "12. Testy")
+    add_heading(doc, "14. Testy")
     add_table(
         doc,
         ["Obszar", "Sprawdzenie", "Wynik"],
@@ -671,36 +705,46 @@ def technical_document():
             ("Statystyka", "Średnia i s dla serii 1,2,3,4,5", "zaliczony"),
             ("Pole H", "Przykład 200 MHz, P=-34 dBm, K=21,25 dB, Sp=-31 dB", "zaliczony"),
             ("Niepewność", "uH≈0,366546 dB i U95≈0,733092 dB", "zaliczony"),
-            ("Eksport", "Obecność wymaganych sekcji w obu plikach CSV", "zaliczony"),
-            ("Nawigacja", "Pełne przejście scenariusza sond do kroku 4", "zaliczony"),
+            ("EN55032", "AF 30 MHz, korekta pionowa i limit dla 200 MHz", "zaliczony"),
+            ("Propagacja", "Konwersja -60,96 dB na 1116,863 µV i AF=23,04 dB/m", "zaliczony"),
+            ("Import", "CSV czterech scenariuszy i struktura MATLAB", "zaliczony"),
+            ("Eksport CSV", "Obecność wymaganych sekcji w czterech plikach", "zaliczony"),
+            ("Eksport DOCX", "Dokument otwiera się i zawiera równania oraz tabele", "zaliczony"),
+            ("Nawigacja", "Pełne przejście czterech kreatorów do kroku 4", "zaliczony"),
+            ("UI headless", "820 × 600, brak kolizji przycisków i tekstu, widoczny skład wzorów", "zaliczony"),
             ("Kompilacja", "Release, 0 błędów i 0 ostrzeżeń", "zaliczony"),
         ],
         [1800, 5700, 1860],
     )
-    add_body(doc, "Testy mają postać lekkiego programu kontrolnego bez zewnętrznego frameworka testowego. Uruchomienie:")
-    add_code(doc, ["dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks"])
-
-    add_heading(doc, "13. Ograniczenia i kierunki rozwoju")
-    add_bullets(doc, [
-        "Brak trwałego zapisu sesji; po zamknięciu programu dane pozostają wyłącznie w wyeksportowanym CSV.",
-        "Brak importu danych z analizatora i miernika mocy.",
-        "Brak automatycznego odczytu K i Sp z pliku charakterystyki; wartości są zapisane jako edytowalne domyślne punkty.",
-        "Brak automatycznych testów interfejsu oraz instalatorów dla systemów docelowych.",
-        "Możliwe rozszerzenie o kolejne ćwiczenia, raport DOCX/PDF, profile aparatury i zapis projektu.",
+    add_body(doc, "Obliczenia i eksport są sprawdzane przez program kontrolny, a układ interfejsu przez Avalonia.Headless.XUnit i xUnit v3. Uruchomienie:")
+    add_code(doc, [
+        "dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks",
+        "dotnet run --project Tests/CrosstalkAnalyzer.UiTests",
     ])
 
-    add_heading(doc, "14. Struktura katalogów")
+    add_heading(doc, "15. Ograniczenia i kierunki rozwoju")
+    add_bullets(doc, [
+        "Brak trwałego formatu sesji; po zamknięciu programu dane pozostają w wyeksportowanym CSV lub DOCX.",
+        "Brak automatycznego odczytu K i Sp z pliku charakterystyki; wartości są zapisane jako edytowalne domyślne punkty.",
+        "Ćwiczenia z ochrony środowiska oraz analizatora widma oczekują na instrukcje prowadzącego.",
+        "Scenariusz propagacyjny wymaga zatwierdzenia względem oryginalnej instrukcji, której nie było w audytowanym katalogu.",
+        "Brakuje wykładów cz02 i cz07; aplikacja nie rekonstruuje ich treści na podstawie numeracji.",
+        "Możliwe rozszerzenie o zapis projektu, raport PDF i kolejne ćwiczenia po dostarczeniu źródeł.",
+    ])
+
+    add_heading(doc, "16. Struktura katalogów")
     add_code(doc, [
         "Models/      - rekordy wejściowe, wyniki i podsumowania",
         "Services/    - logika obliczeń, częstotliwości i eksport",
         "ViewModels/  - stan kreatorów, walidacja i nawigacja",
         "Views/       - widoki Avalonia XAML",
         "Controls/    - własne kontrolki wykresów",
-        "Tests/       - kontrole obliczeń, eksportu i nawigacji",
+        "Tests/       - kontrole obliczeń, eksportu, nawigacji i układu UI",
+        "Documentation/COURSE_COVERAGE.md - rejestr pokrycia materiału",
         "Assets/      - zasoby aplikacji",
     ])
 
-    add_heading(doc, "15. Materiały źródłowe")
+    add_heading(doc, "17. Materiały źródłowe")
     add_bullets(doc, [
         "Kod źródłowy projektu EMC Lab Assistant.",
         "R&S ZVL Vector Network Analyzer Data Sheet, wersja 12.00.",
@@ -708,6 +752,11 @@ def technical_document():
         "Instrukcja laboratoryjna „Pomiar sondami pola bliskiego”.",
         "„Obliczenia do pomiarów sondami pola bliskiego”.",
         "Wzorzec sprawozdania Lab_KEM_Pom_Emisji_Kabla_PCB.",
+        "Instrukcja „Emisja promieniowana - poprawka antenowa, scenariusz pomiarowy normy EN55032”.",
+        "Sprawozdanie i notatki z ćwiczenia „Pomiary propagacyjne (Nr 4)”.",
+        "Rekomendacje ITU-R SM.1708-1, SM.1875-2, SM.378-7 oraz Spectrum Monitoring Handbook.",
+        "Schwarzbeck UHALP 9108 A1, Correction for Short Measuring Distance.",
+        "Materiały wykładowe i pytania kontrolne dostępne w audytowanym katalogu przedmiotu.",
     ])
 
     path = OUTPUT / "01_Dokumentacja_techniczna_EMC_Lab_Assistant.docx"
@@ -734,8 +783,8 @@ def project_report():
     )
 
     add_heading(doc, "Streszczenie")
-    add_body(doc, "Celem projektu było wykonanie aplikacji w języku C#, która prowadzi studenta przez ćwiczenie laboratoryjne, prezentuje stosowane wzory, kontroluje kompletność danych i automatyzuje obliczenia. Zastosowano Avalonia UI, dzięki czemu rozwiązanie działa na systemach Windows i Linux. Wersja 1.0 obejmuje dwa scenariusze: pomiar przeników między liniami mikropaskowymi oraz sondy pola bliskiego w analizie emisji promieniowanej.")
-    add_callout(doc, "Rezultat", "Powstał działający program z interfejsem graficznym, dwoma czterostopniowymi kreatorami, wykresami, obliczeniami niepewności i eksportem CSV.", "success")
+    add_body(doc, "Celem projektu było wykonanie aplikacji w języku C#, która prowadzi studenta przez ćwiczenie laboratoryjne, prezentuje czytelnie złożone wzory, kontroluje kompletność danych i automatyzuje obliczenia. Zastosowano Avalonia UI, dzięki czemu rozwiązanie działa na systemach Windows i Linux. Wersja 2.0 obejmuje cztery scenariusze pomiarowe, moduł nauki, rejestr pokrycia przedmiotu, import CSV/MATLAB oraz eksport CSV/DOCX.")
+    add_callout(doc, "Rezultat", "Powstał działający program z responsywnym interfejsem, czterema kreatorami, siedmioma blokami nauki, wykresami, mapami cieplnymi, obliczeniami niepewności i raportem DOCX.", "success")
 
     add_heading(doc, "1. Uzasadnienie projektu")
     add_body(doc, "Podczas laboratorium student wykonuje wiele powtarzalnych przeliczeń, korzysta z charakterystyk aparatury i musi zachować właściwą kolejność czynności. Błąd przy przepisywaniu danych, pominięcie poprawki lub zastosowanie niewłaściwej jednostki może prowadzić do niepoprawnego sprawozdania. Program pełni rolę asystenta: oddziela pomiar od obliczeń, pokazuje wzór na właściwym etapie oraz umożliwia wyeksportowanie tabeli wynikowej.")
@@ -748,7 +797,7 @@ def project_report():
         "prezentacja wzorów i automatyczne przeliczenia;",
         "walidacja danych wejściowych;",
         "wykresy i podsumowanie wyników;",
-        "eksport tabel do dalszej obróbki w sprawozdaniu;",
+        "import danych z plików pomiarowych i eksport tabel oraz raportu;",
         "możliwość dołączania kolejnych scenariuszy laboratoryjnych.",
     ])
 
@@ -771,7 +820,7 @@ def project_report():
     add_body(doc, "Rozdzielenie warstw ogranicza sprzężenie interfejsu z algorytmami. Wzory są testowane niezależnie od okna programu, a nowy scenariusz można dodać przez utworzenie modeli, usługi obliczeniowej, zestawu ViewModeli i odpowiadających im widoków.")
 
     add_heading(doc, "5. Zrealizowane scenariusze")
-    add_image(doc, ASSETS / "przeplyw_scenariuszy.png", "Rysunek 2. Dwa scenariusze dostępne w wersji 1.0.")
+    add_image(doc, ASSETS / "przeplyw_scenariuszy.png", "Rysunek 2. Przebieg czterech kreatorów pomiarowych w wersji 2.0.")
 
     add_heading(doc, "5.1. Pomiar przeników między liniami mikropaskowymi", level=2)
     add_steps(doc, [
@@ -793,9 +842,29 @@ def project_report():
     add_equation(doc, "H[dBA/m] = P[dBm] - 30 + 10·log10(50) - K + Sp")
     add_equation(doc, "uH = √(uP² + uK² + uSp²),    U95 = 2·uH")
 
+    add_heading(doc, "5.3. Emisja promieniowana - poprawka antenowa EN55032", level=2)
+    add_steps(doc, [
+        "Potwierdzenie odległości 3 m, dwóch polaryzacji i budżetu niepewności.",
+        "Wprowadzenie MR, tłumienia kabla IL oraz wysokości anteny dla 30-1000 MHz.",
+        "Wyznaczenie poprawki antenowej dipola i korekty dla polaryzacji pionowej.",
+        "Porównanie maksymalnego pola E z limitem EN55032 klasy B i eksport.",
+    ])
+    add_equation(doc, "E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]")
+    add_equation(doc, "UE = √(UMR² + UAF² + UIL²)")
+
+    add_heading(doc, "5.4. Pomiary propagacyjne DVB-T", level=2)
+    add_steps(doc, [
+        "Przygotowanie analizatora widma, anteny UHALP i pola pomiarowego 1 m × 1 m.",
+        "Wpisanie poziomów dla polaryzacji poziomej i pionowej w 16 punktach.",
+        "Przeliczenie ujemnych odczytów na U[µV] oraz pole E.",
+        "Wyznaczenie średniej przestrzennej, tolerancji Eav ± T, wykresu i eksportu.",
+    ])
+    add_equation(doc, "U[µV] = 10^(-L[dB]/20)")
+    add_equation(doc, "E[µV/m] = U[µV] · AF[1/m] · 10^(ac/20)")
+
     add_heading(doc, "6. Interfejs użytkownika")
     add_image(doc, ASSETS / "mapa_interfejsu.png", "Rysunek 3. Stałe elementy interfejsu programu.")
-    add_body(doc, "Nagłówek informuje o aktywnym scenariuszu i kroku. Pasek postępu pokazuje pozycję w kreatorze. Środkowy panel zawiera tabelę, wzór lub wykres, natomiast dolny pasek udostępnia nawigację, zmianę scenariusza i eksport. Przycisk Dalej pozostaje nieaktywny do chwili uzupełnienia wymaganych danych.")
+    add_body(doc, "Nagłówek informuje o aktywnym scenariuszu i kroku. Pasek postępu pokazuje pozycję w kreatorze. Środkowy panel ma pionowe przewijanie, formularze zawijają się przy mniejszej szerokości, a tabele przewijają się w obu kierunkach. Równania są składane przez CSharpMath zamiast wyświetlania surowego zapisu. Dolny pasek ma osobny wiersz statusu, dlatego przyciski nie zasłaniają treści.")
 
     add_heading(doc, "7. Weryfikacja")
     add_table(
@@ -807,8 +876,12 @@ def project_report():
             ("Wzory przeników", "wartości referencyjne", "spełnione"),
             ("Pole H", "-99,2603 dBA/m dla przykładu 200 MHz", "spełnione"),
             ("Niepewność sond", "U95≈0,7331 dB", "spełnione"),
-            ("Nawigacja", "pełne przejście obu kreatorów", "spełnione"),
-            ("Eksport", "wymagane sekcje CSV", "spełnione"),
+            ("EN55032", "AF, korekta pionowa, limit i margines", "spełnione"),
+            ("Propagacja", "konwersja odczytów, AF, Eav ± T", "spełnione"),
+            ("Nawigacja", "pełne przejście czterech kreatorów", "spełnione"),
+            ("Import", "CSV czterech scenariuszy i plik MATLAB", "spełnione"),
+            ("Eksport", "wymagane sekcje CSV i raport DOCX", "spełnione"),
+            ("UI 820 × 600", "brak kolizji przycisków/tekstów i widoczne wzory", "spełnione"),
         ],
         [2100, 4700, 2560],
     )
@@ -828,16 +901,16 @@ def project_report():
     ])
 
     add_heading(doc, "10. Ograniczenia")
-    add_body(doc, "Program nie zastępuje oceny metrologicznej ani instrukcji obsługi aparatury. Domyślne współczynniki i niepewności należy weryfikować dla konkretnego stanowiska. W wersji 1.0 dane nie są odczytywane automatycznie z urządzeń, a sesja nie jest zapisywana w formacie projektu.")
+    add_body(doc, "Program nie zastępuje oceny metrologicznej ani instrukcji obsługi aparatury. Domyślne współczynniki i niepewności należy weryfikować dla konkretnego stanowiska. Dwa ćwiczenia z sylabusa nie zostały zaimplementowane bez źródeł proceduralnych. Scenariusz propagacyjny pozostaje oznaczony jako wymagający zatwierdzenia względem oryginalnej instrukcji. Sesja nie jest zapisywana w formacie projektu.")
 
     add_heading(doc, "11. Możliwości dalszego rozwoju")
     add_bullets(doc, [
-        "import CSV bezpośrednio z analizatora lub miernika;",
-        "interpolacja charakterystyk aparatury z plików kalibracyjnych;",
-        "generowanie kompletnego sprawozdania DOCX/PDF;",
+        "bezpośrednia komunikacja z analizatorem lub miernikiem;",
+        "dodatkowe profile aparatury z plików kalibracyjnych;",
+        "eksport raportu również do PDF;",
         "zapis i ponowne otwieranie sesji pomiarowej;",
-        "kolejne scenariusze laboratoryjne;",
-        "automatyczne testy interfejsu oraz instalatory.",
+        "wdrożenie dwóch brakujących laboratoriów po otrzymaniu instrukcji;",
+        "uzupełnienie modułu nauki po otrzymaniu wykładów cz02 i cz07.",
     ])
 
     add_heading(doc, "12. Wnioski")
@@ -860,7 +933,7 @@ def user_manual():
             ("Program", PROJECT),
             ("Wersja", VERSION),
             ("Odbiorca", "Student wykonujący ćwiczenie laboratoryjne"),
-            ("Scenariusze", "Przeniki mikropaskowe; sondy pola bliskiego"),
+            ("Moduły", "4 kreatory; nauka; rejestr pokrycia materiału"),
             ("System", "Windows 10/11 lub Linux x64"),
             ("Autor", AUTHOR),
         ],
@@ -872,7 +945,7 @@ def user_manual():
         "Na ekranie startowym wybierz ćwiczenie.",
         "Wykonuj polecenia widoczne w kolejnych krokach.",
         "Po uzupełnieniu tabeli wybierz Dalej.",
-        "Na ostatnim ekranie sprawdź wykres i użyj Eksportuj CSV.",
+        "Na ostatnim ekranie sprawdź wykres i użyj Eksportuj CSV lub Eksportuj DOCX.",
     ])
     add_callout(doc, "Ważne", "Przycisk Dalej jest nieaktywny, dopóki wszystkie wymagane pola nie są poprawnie uzupełnione.", "info")
 
@@ -900,14 +973,15 @@ def user_manual():
             ("Wstecz", "Powrót do poprzedniego kroku bez usuwania danych."),
             ("Zmień scenariusz", "Powrót do listy ćwiczeń."),
             ("Dalej", "Przeliczenie danych i przejście do kolejnego kroku."),
-            ("Eksportuj CSV", "Zapis kompletnego podsumowania na ostatnim ekranie."),
+            ("Eksportuj CSV", "Zapis danych do dalszej analizy w arkuszu."),
+            ("Eksportuj DOCX", "Zapis sformatowanego raportu z równaniami, tabelami i miejscem na wnioski."),
         ],
         [2300, 7060],
     )
 
     add_heading(doc, "4. Wybór scenariusza")
-    add_body(doc, "Ekran startowy zawiera dwie karty. Wybierz scenariusz odpowiadający wykonywanemu ćwiczeniu. Zmiana scenariusza jest możliwa w każdej chwili przyciskiem Zmień scenariusz.")
-    add_image(doc, ASSETS / "przeplyw_scenariuszy.png", "Rysunek 2. Kolejność kroków w obu scenariuszach.")
+    add_body(doc, "Ekran startowy zawiera cztery karty ćwiczeń oraz dwie karty pomocnicze: Nauka i Pokrycie materiału. Wybierz kreator odpowiadający wykonywanemu ćwiczeniu albo moduł pomocniczy. Zmiana modułu jest możliwa w każdej chwili przyciskiem Zmień scenariusz.")
+    add_image(doc, ASSETS / "przeplyw_scenariuszy.png", "Rysunek 2. Kolejność kroków w czterech scenariuszach.")
 
     add_heading(doc, "5. Scenariusz: pomiar przeników")
     add_heading(doc, "Krok 1. Dane wejściowe", level=2)
@@ -925,7 +999,7 @@ def user_manual():
     add_equation(doc, "|Z|lin = 10^(|Z|dB/20)")
 
     add_heading(doc, "Krok 3. Błąd analizatora", level=2)
-    add_body(doc, "Sprawdź przyjętą wartość UD i przedziały każdego punktu. Wersja 1.0 przyjmuje 0,2 dB dla pasm do 3 GHz i 0,3 dB dla pasma 7–8 GHz.")
+    add_body(doc, "Sprawdź osobno wartości U NEXT i U FEXT oraz przedziały każdego punktu. Wartości domyślne wynoszą 0,2 dB dla pasm do 3 GHz i 0,3 dB dla pasma 7-8 GHz, ale można je edytować zgodnie ze specyfikacją analizatora.")
     add_equation(doc, "Delta Z = |Z|lin · (10^(UD/20) - 1)")
 
     add_heading(doc, "Krok 4. Podsumowanie", level=2)
@@ -933,6 +1007,7 @@ def user_manual():
     add_bullets(doc, [
         "Nowe badanie - czyści dane i wraca do pierwszego kroku.",
         "Eksportuj CSV - zapisuje punkty, błędy, granice oraz statystyki.",
+        "Eksportuj DOCX - tworzy raport gotowy do uzupełnienia wniosków.",
     ])
 
     add_heading(doc, "6. Scenariusz: sondy pola bliskiego")
@@ -952,9 +1027,9 @@ def user_manual():
         doc,
         ["Kolumna", "Co wpisać"],
         [
-            ("P — 30 Ω", "Maksimum wskazania dla płytki 30 Ω."),
-            ("P — 50 Ω", "Maksimum wskazania dla płytki 50 Ω."),
-            ("P — 100 Ω", "Maksimum wskazania dla płytki 100 Ω."),
+            ("P - 30 Ω", "Maksimum wskazania dla płytki 30 Ω."),
+            ("P - 50 Ω", "Maksimum wskazania dla płytki 50 Ω."),
+            ("P - 100 Ω", "Maksimum wskazania dla płytki 100 Ω."),
             ("K", "Wzmocnienie toru pomiarowego w dB."),
             ("Sp", "Poprawka sondy pola bliskiego w dB."),
         ],
@@ -965,54 +1040,114 @@ def user_manual():
     add_heading(doc, "Krok 3. Pole H i niepewność", level=2)
     add_equation(doc, "H[dBA/m] = P[dBm] - 30 + 10·log10(50) - K + Sp")
     add_equation(doc, "H[A/m] = 10^(H[dBA/m]/20)")
-    add_body(doc, "Program pokazuje wyniki dla każdej impedancji oraz 95% przedziały. Domyślna niepewność rozszerzona wynosi około 0,733 dB.")
+    add_body(doc, "Program pokazuje wyniki dla każdej impedancji oraz 95% przedziały. Budżet obejmuje uP, uK, uSp i edytowalny składnik powtarzalności uRep.")
 
     add_heading(doc, "Krok 4. Porównanie", level=2)
-    add_body(doc, "Tabela podsumowuje największą wartość H, odpowiadającą częstotliwość oraz oszacowaną szybkość zmian. Wykres umożliwia porównanie linii 30 Ω, 50 Ω i 100 Ω.")
+    add_body(doc, "Tabela podsumowuje największą wartość H, odpowiadającą częstotliwość oraz oszacowaną szybkość zmian. Wykres umożliwia porównanie linii 30 Ω, 50 Ω i 100 Ω. Pola Obserwacje i Wnioski służą do zapisania analizy dodatkowego nagrania.")
     add_callout(doc, "Interpretacja trendu", "Wartość dodatnia w kolumnie dB/100 MHz oznacza, że w całym badanym zakresie poziom H ma tendencję rosnącą. Lokalne maksima i spadki nadal mogą występować.", "info")
 
-    add_heading(doc, "7. Eksport CSV")
+    add_heading(doc, "7. Scenariusz: emisja promieniowana EN55032")
+    add_heading(doc, "Krok 1. Założenia", level=2)
     add_steps(doc, [
-        "Przejdź do czwartego kroku.",
-        "Wybierz Eksportuj CSV.",
-        "Wskaż katalog i nazwę pliku.",
-        "Otwórz plik w Excelu, LibreOffice Calc lub innym arkuszu.",
-        "W razie potrzeby wybierz separator średnik i kodowanie UTF-8.",
+        "Potwierdź odległość pomiarową 3 m i zakres 30-1000 MHz.",
+        "Zaznacz, że polaryzacja pozioma korzysta ze standardowej poprawki AF.",
+        "Zaznacz, że polaryzacja pionowa wymaga korekty geometrycznej.",
+        "Sprawdź domyślne niepewności: MR 0,2 dB, AF 0,8 dB, IL 0,2 dB.",
     ])
-    add_body(doc, "Eksport sond obejmuje również warunki środowiskowe, wartości K i Sp, pole w dwóch skalach, U95, granice przedziałów, maksima oraz trendy.")
+    add_callout(doc, "Korekta pionowa", "W tym scenariuszu kierunek odbioru dla polaryzacji pionowej nie pokrywa się z maksimum charakterystyki dipola, dlatego program liczy kąt elewacji i dodatkową korektę AF.", "info")
 
-    add_heading(doc, "8. Najczęstsze problemy")
+    add_heading(doc, "Krok 2. Dane surowe", level=2)
+    add_body(doc, "W tabeli wpisz tłumienie kabla IL, wskazanie analizatora MR oraz wysokość anteny, przy której odczyt był maksymalny. Dane wpisuje się osobno dla polaryzacji poziomej i pionowej. Przycisk Importuj MAT/CSV odczytuje także strukturę Data z oryginalnych plików MATLAB.")
+    add_table(
+        doc,
+        ["Kolumna", "Znaczenie"],
+        [
+            ("IL", "Tłumienie kabla lub toru pomiarowego w dB."),
+            ("MR H / MR V", "Odczyt analizatora w dBµV dla polaryzacji poziomej lub pionowej."),
+            ("h H / h V", "Wysokość anteny odbiorczej w metrach."),
+        ],
+        [2600, 6760],
+    )
+
+    add_heading(doc, "Krok 3. Poprawka antenowa i pole E", level=2)
+    add_equation(doc, "AF = 20·log10(9,73 / (λ·√G))")
+    add_equation(doc, "E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]")
+    add_body(doc, "Ekran pokazuje AF dla polaryzacji poziomej, kąt α, korektę pionową, AF skorygowane oraz pola E dla obu polaryzacji.")
+
+    add_heading(doc, "Krok 4. Limit i margines", level=2)
+    add_body(doc, "Program wybiera większe pole z obu polaryzacji, tworzy 95% przedział ufności i porównuje górną granicę z limitem EN55032 klasy B. Dodatni margines oznacza przekroczenie, a wartość ujemna oznacza zapas.")
+    add_callout(doc, "Limity", "Dla odległości 3 m program przyjmuje 40 dBµV/m w zakresie 30-230 MHz oraz 47 dBµV/m powyżej 230 MHz.", "warning")
+
+    add_heading(doc, "8. Scenariusz: pomiary propagacyjne DVB-T")
+    add_heading(doc, "Krok 1. Stanowisko", level=2)
+    add_steps(doc, [
+        "Ustaw analizator widma w zakresie 200 MHz - 1 GHz.",
+        "Zidentyfikuj sygnał DVB-T w okolicy 522 MHz.",
+        "Przyjmij pole pomiarowe 1 m × 1 m i 16 punktów.",
+        "Wybierz profil AF UHALP 9108 albo tryb ręczny oraz właściwą konwencję odczytu: historyczną, dBµV lub dBm/50 Ω.",
+    ])
+
+    add_heading(doc, "Krok 2. Tabela 16 punktów", level=2)
+    add_body(doc, "Wpisz poziom z analizatora dla polaryzacji poziomej i pionowej. W każdym punkcie należy obrócić antenę w celu znalezienia maksimum.")
+    add_callout(doc, "Dane przykładowe", "Domyślne dane z raportu dotyczą sygnału DVB-T około 522 MHz. Do własnego sprawozdania należy wpisać własne wyniki pomiarów.", "warning")
+
+    add_heading(doc, "Krok 3. Przeliczenie na pole E", level=2)
+    add_equation(doc, "U[µV] = 10^(-L[dB] / 20)")
+    add_equation(doc, "E[µV/m] = U[µV] · AF[1/m] · 10^(ac/20)")
+    add_body(doc, "Program liczy wartości U i E osobno dla obu polaryzacji oraz wskazuje silniejszą polaryzację w każdym punkcie.")
+
+    add_heading(doc, "Krok 4. Średnia i tolerancja", level=2)
+    add_body(doc, "Ostatni ekran pokazuje wynik końcowy w postaci Eav ± T, punkt maksimum, wykres polaryzacji poziomej i pionowej oraz dwie mapy cieplne siatki 4 × 4.")
+    add_callout(doc, "Interpretacja", "Jeżeli polaryzacja pozioma ma wyższy średni poziom pola, jest to zgodne z oczekiwaniem dla sygnału DVB-T nadawanego w polaryzacji poziomej.", "info")
+
+    add_heading(doc, "9. Import i eksport")
+    add_steps(doc, [
+        "W kroku danych wybierz Importuj CSV lub Importuj MAT/CSV i wskaż plik.",
+        "Sprawdź komunikat importu oraz kompletność tabeli.",
+        "Przejdź do czwartego kroku.",
+        "Wybierz Eksportuj CSV albo Eksportuj DOCX.",
+        "Wskaż katalog i nazwę pliku.",
+        "CSV otwórz w arkuszu, a DOCX w Wordzie albo LibreOffice Writer.",
+    ])
+    add_body(doc, "Każdy scenariusz eksportuje dane surowe, wartości pośrednie oraz podsumowanie. Raport DOCX dodaje zastosowane równania, metadane ćwiczenia i miejsce na końcową interpretację.")
+
+    add_heading(doc, "10. Nauka i pokrycie materiału")
+    add_body(doc, "Karta Nauka zawiera siedem bloków tematycznych, pytania kontrolne oraz kalkulatory długości fali, prądu pojemnościowego i napięcia indukowanego. Karta Pokrycie materiału pokazuje ćwiczenia i wykłady, których nie można uznać za wdrożone bez dodatkowych źródeł.")
+    add_callout(doc, "Uwaga", "Pozycja Oczekuje na instrukcję nie jest awarią programu. Chroni przed użyciem procedury lub wzoru odtworzonego bez podstawy źródłowej.", "warning")
+
+    add_heading(doc, "11. Najczęstsze problemy")
     add_table(
         doc,
         ["Objaw", "Przyczyna", "Rozwiązanie"],
         [
             ("Dalej jest nieaktywne", "Brakuje danych lub pozycja listy kontrolnej nie jest zaznaczona.", "Sprawdź komunikat pod tabelą i wszystkie pola."),
             ("Wartość nie zostaje przyjęta", "Nieprawidłowy format lub zakres liczby.", "Usuń jednostkę z pola; wpisz wyłącznie liczbę."),
-            ("Wynik wygląda nietypowo", "Nieprawidłowy znak K/Sp albo jednostka wejścia.", "Sprawdź, czy P jest w dBm, a Sp może być ujemne."),
+            ("Wynik wygląda nietypowo", "Nieprawidłowy znak K/Sp, AF/IL albo jednostka wejścia.", "Sprawdź, czy P jest w dBm, MR w dBµV, a odczyty propagacyjne używają właściwej konwencji."),
             ("CSV jest w jednej kolumnie", "Arkusz nie rozpoznał separatora.", "Zaimportuj plik z separatorem średnikowym."),
+            ("Import został odrzucony", "Brakuje kolumn, punktów lub liczba ma niepoprawny format.", "Sprawdź nagłówek i wymaganą liczbę wierszy dla scenariusza."),
             ("Nie można zapisać pliku", "Brak uprawnień lub plik jest otwarty.", "Wybierz inny katalog/nazwę i zamknij plik w arkuszu."),
         ],
         [2100, 3400, 3860],
     )
 
-    add_heading(doc, "9. Dobre praktyki")
+    add_heading(doc, "12. Dobre praktyki")
     add_bullets(doc, [
-        "Zapisuj CSV natychmiast po zakończeniu serii pomiarowej.",
+        "Zapisuj CSV i DOCX natychmiast po zakończeniu serii pomiarowej.",
         "Nie traktuj danych przykładowych jako wyników laboratoryjnych.",
         "Przed eksportem sprawdź znaki i jednostki wszystkich współczynników.",
-        "Zachowuj stałą orientację sondy podczas porównywania serii.",
+        "Zachowuj stałą orientację sondy albo anteny podczas porównywania serii.",
         "W sprawozdaniu podaj zastosowane wzory i źródła niepewności.",
         "Porównuj wyniki z instrukcją oraz kartą katalogową użytej aparatury.",
     ])
 
-    add_heading(doc, "10. Skrócona lista kontrolna przed oddaniem sprawozdania")
+    add_heading(doc, "13. Skrócona lista kontrolna przed oddaniem sprawozdania")
     add_bullets(doc, [
         "Użyto własnych danych pomiarowych.",
-        "Wartości K, Sp i UD zostały zweryfikowane.",
+        "Wartości K, Sp, UD, AF, IL i niepewności zostały zweryfikowane.",
         "Tabela zawiera jednostki.",
         "Wykres ma podpisane osie i legendę.",
         "Podano niepewność i sposób jej obliczenia.",
-        "Plik CSV został zachowany wraz ze sprawozdaniem.",
+        "Plik CSV albo raport DOCX został zachowany wraz ze sprawozdaniem.",
     ])
 
     path = OUTPUT / "03_Instrukcja_uzytkowania_EMC_Lab_Assistant.docx"

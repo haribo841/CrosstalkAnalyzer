@@ -7,9 +7,10 @@
              x:CompileBindings="False">
   <Grid RowDefinitions="Auto,*,Auto"
         RowSpacing="14">
-    <Grid ColumnDefinitions="*,*,*,*"
-          ColumnSpacing="12">
-      <Border Background="#F8FAFD"
+    <WrapPanel Orientation="Horizontal">
+      <Border Width="230"
+              Margin="0,0,12,10"
+              Background="#F8FAFD"
               BorderBrush="#E1E6EF"
               BorderThickness="1"
               CornerRadius="10"
@@ -21,7 +22,8 @@
                      FontWeight="SemiBold"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="1"
+      <Border Width="230"
+              Margin="0,0,12,10"
               Background="#F8FAFD"
               BorderBrush="#E1E6EF"
               BorderThickness="1"
@@ -34,7 +36,8 @@
                      FontWeight="SemiBold"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="2"
+      <Border Width="230"
+              Margin="0,0,12,10"
               Background="#FFF8ED"
               BorderBrush="#FED7AA"
               BorderThickness="1"
@@ -47,7 +50,8 @@
                      FontWeight="SemiBold"/>
         </StackPanel>
       </Border>
-      <Border Grid.Column="3"
+      <Border Width="230"
+              Margin="0,0,12,10"
               Background="#EEF4FF"
               BorderBrush="#CADBFF"
               BorderThickness="1"
@@ -60,7 +64,7 @@
                      FontWeight="SemiBold"/>
         </StackPanel>
       </Border>
-    </Grid>
+    </WrapPanel>
 
     <Grid Grid.Row="1"
           RowDefinitions="1.05*,1.15*"

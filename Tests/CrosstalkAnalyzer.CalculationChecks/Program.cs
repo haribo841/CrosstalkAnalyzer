@@ -2,6 +2,9 @@ using System.Text;
 using CrosstalkAnalyzer.Models;
 using CrosstalkAnalyzer.Services;
 using CrosstalkAnalyzer.ViewModels;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Validation;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 static void AssertClose(double expected, double actual, double tolerance, string name)
 {
@@ -27,7 +30,8 @@ var row = new MeasurementResult
     FarDb = -40,
     NearLinear = 0.1,
     FarLinear = 0.01,
-    AnalyzerUncertaintyDb = 0.2,
+    NearAnalyzerUncertaintyDb = 0.2,
+    FarAnalyzerUncertaintyDb = 0.2,
     NearDelta = delta,
     FarDelta = CrosstalkLogic.CalculateDeltaZ(0.01, 0.2),
 };
@@ -78,6 +82,7 @@ var nearFieldResult = NearFieldLogic.Calculate(
     0.066,
     0.2,
     0.3,
+    0,
     2);
 AssertClose(field, nearFieldResult.H30OhmDbAm, 1e-12, "Wynik punktu 30 Ω");
 
@@ -201,3 +206,151 @@ if (radiatedWizard.CurrentStep != 4 ||
 }
 
 Console.WriteLine("Testy scenariusza emisji promieniowanej zakończone powodzeniem.");
+
+AssertClose(
+    1116.863248,
+    PropagationLogic.ConvertLevelToMicrovolts(
+        -60.96,
+        PropagationInputConventionKind.LegacyReport),
+    1e-6,
+    "Konwersja poziomu propagacyjnego dla punktu 1");
+AssertClose(
+    14.1905752169,
+    PropagationLogic.ConvertAntennaFactorDbToLinear(23.04),
+    1e-6,
+    "Konwersja AF 23,04 dB/m");
+AssertClose(
+    17.648,
+    Uhalp9108Calibration.GetAntennaFactorDb(522, AntennaFactorProfileKind.FreeSpace),
+    1e-9,
+    "Interpolacja AF UHALP 9108 A1 dla 522 MHz");
+
+var propagationPoint = new PropagationMeasurementPoint
+{
+    PointNumber = 1,
+    HorizontalLevelDb = -60.96,
+    VerticalLevelDb = -61.52,
+};
+var propagationResult = PropagationLogic.Calculate(
+    propagationPoint,
+    23.04,
+    0,
+    PropagationInputConventionKind.LegacyReport);
+AssertClose(
+    84.00,
+    propagationResult.HorizontalFieldDbuvPerM,
+    1e-9,
+    "Pole E dla punktu 1, polaryzacja pozioma");
+
+var propagationSummary = PropagationLogic.Summarize(
+    "pozioma",
+    [propagationResult],
+    result => result.HorizontalVoltageUv,
+    result => result.HorizontalFieldUvPerM,
+    result => result.HorizontalFieldDbuvPerM,
+    23.04,
+    2.0,
+    0.5,
+    0,
+    2);
+await using var propagationStream = new MemoryStream();
+await ReportGenerator.WritePropagationCsvAsync(
+    propagationStream,
+    new PropagationStep1ViewModel(),
+    [propagationResult],
+    [propagationSummary]);
+var propagationCsv = Encoding.UTF8.GetString(propagationStream.ToArray());
+if (!propagationCsv.Contains("Pomiary propagacyjne", StringComparison.Ordinal) ||
+    !propagationCsv.Contains("E H [dBµV/m]", StringComparison.Ordinal))
+{
+    throw new InvalidOperationException(
+        "Eksport scenariusza pomiarów propagacyjnych nie zawiera wymaganych sekcji.");
+}
+
+var propagationWizard = new MainWindowViewModel();
+propagationWizard.ScenarioSelection.SelectPropagationCommand.Execute(null);
+if (propagationWizard.CurrentScenario != AnalysisScenario.PropagationMeasurements ||
+    propagationWizard.CurrentStep != 1)
+{
+    throw new InvalidOperationException("Nie uruchomiono scenariusza pomiarów propagacyjnych.");
+}
+
+propagationWizard.PropagationStep1.ReceiverConfigured = true;
+propagationWizard.PropagationStep1.AntennaSetupConfirmed = true;
+propagationWizard.PropagationStep1.GridUnderstood = true;
+propagationWizard.PropagationStep1.MaximumSearchConfirmed = true;
+propagationWizard.NextStepCommand.Execute(null);
+propagationWizard.PropagationStep2.FillExampleDataCommand.Execute(null);
+propagationWizard.NextStepCommand.Execute(null);
+propagationWizard.NextStepCommand.Execute(null);
+
+if (propagationWizard.CurrentStep != 4 ||
+    propagationWizard.PropagationStep4.Results.Count != 16 ||
+    propagationWizard.PropagationStep4.Summaries.Count != 2)
+{
+    throw new InvalidOperationException("Kreator pomiarów propagacyjnych nie przygotował podsumowania.");
+}
+
+Console.WriteLine("Testy scenariusza pomiarów propagacyjnych zakończone powodzeniem.");
+
+await using var docxStream = new MemoryStream();
+await DocxReportGenerator.WriteAsync(docxStream, propagationWizard);
+docxStream.Position = 0;
+using (var docx = WordprocessingDocument.Open(docxStream, false))
+{
+    var validationErrors = new OpenXmlValidator().Validate(docx).Take(10).ToArray();
+    if (validationErrors.Length > 0)
+    {
+        throw new InvalidOperationException(
+            "Raport DOCX nie jest zgodny ze schematem Open XML: " +
+            string.Join(" | ", validationErrors.Select(error => error.Description)));
+    }
+
+    var body = docx.MainDocumentPart?.Document?.Body
+        ?? throw new InvalidOperationException("Raport DOCX nie zawiera treści głównej.");
+    var text = body.InnerText;
+    if (!text.Contains("Pomiary propagacyjne", StringComparison.Ordinal) ||
+        !text.Contains("Zastosowane równania", StringComparison.Ordinal) ||
+        body.Descendants<Table>().Count() < 2)
+    {
+        throw new InvalidOperationException("Raport DOCX nie zawiera wymaganych sekcji i tabel.");
+    }
+}
+
+Console.WriteLine("Test eksportu raportu DOCX zakończony powodzeniem.");
+
+using var crosstalkImportReader = new StringReader(
+    "f [MHz];NEXT [dB];FEXT [dB]\n" +
+    string.Join(
+        "\n",
+        Enumerable.Range(0, 11).Select(index =>
+            $"{1000 + index * 100};{-20.0 - index:0.0};{-40.0 - index:0.0}".Replace('.', ','))));
+var importedCrosstalk = MeasurementImportService.ReadCrosstalkCsv(crosstalkImportReader);
+if (importedCrosstalk.Count != 11 ||
+    Math.Abs(importedCrosstalk[0].FrequencyGHz - 1.0) > 1e-12)
+{
+    throw new InvalidOperationException("Import CSV przeników nie rozpoznał formatu z polskim separatorem.");
+}
+
+var importedStep1 = new Step1ViewModel();
+importedStep1.ImportMeasurements(importedCrosstalk);
+if (!importedStep1.CanGoNext || importedStep1.SelectedBand?.StartGHz != 1)
+    throw new InvalidOperationException("Import CSV nie wypełnił scenariusza przeników.");
+
+using var propagationImportReader = new StringReader(
+    "punkt;H;V\n" +
+    string.Join("\n", Enumerable.Range(1, 16).Select(index => $"{index};-60,0;-62,0")));
+var importedPropagation = MeasurementImportService.ReadPropagationCsv(propagationImportReader);
+if (importedPropagation.Count != 16 || importedPropagation[15].PointNumber != 16)
+    throw new InvalidOperationException("Import CSV pomiarów propagacyjnych jest niekompletny.");
+
+var matFixturePath = Environment.GetEnvironmentVariable("EMC_MAT_FIXTURE");
+if (!string.IsNullOrWhiteSpace(matFixturePath))
+{
+    await using var matStream = File.OpenRead(matFixturePath);
+    var importedMat = MatRadiatedEmissionImporter.Read(matStream);
+    if (importedMat.Count != 21 || importedMat.Any(row => !double.IsFinite(row.CableLossDb)))
+        throw new InvalidOperationException("Import pliku MATLAB nie zwrócił kompletnego zestawu danych.");
+}
+
+Console.WriteLine("Testy importu CSV i MATLAB zakończone powodzeniem.");

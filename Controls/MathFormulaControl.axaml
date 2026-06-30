@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:math="clr-namespace:CSharpMath.Avalonia;assembly=CSharpMath.Avalonia"
+             x:Class="CrosstalkAnalyzer.Controls.MathFormulaControl"
+             x:Name="Root">
+  <Border Background="#F7FAFF"
+          BorderBrush="#CBD9F3"
+          BorderThickness="1"
+          CornerRadius="10"
+          Padding="16">
+    <StackPanel Spacing="8">
+      <TextBlock Text="{Binding Caption, ElementName=Root}"
+                 Foreground="#315FAD"
+                 FontSize="11"
+                 FontWeight="Bold"
+                 LetterSpacing="1.1"
+                 TextWrapping="Wrap"/>
+      <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Disabled">
+        <math:MathView LaTeX="{Binding Latex, ElementName=Root}"
+                       FontSize="22"
+                       HorizontalAlignment="Left"/>
+      </ScrollViewer>
+      <TextBlock Text="{Binding Description, ElementName=Root}"
+                 Foreground="#48566B"
+                 FontSize="12"
+                 TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding AccessibleText, ElementName=Root}"
+                 Foreground="#66758B"
+                 FontSize="11"
+                 FontStyle="Italic"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+  </Border>
+</UserControl>

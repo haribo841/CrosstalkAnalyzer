@@ -26,7 +26,7 @@ public static class ReportGenerator
         await writer.WriteLineAsync();
         await writer.WriteLineAsync(
             "Częstotliwość [GHz];NEXT [dB];FEXT [dB];NEXT liniowo;FEXT liniowo;" +
-            "U_D [dB];ΔZ NEXT;ΔZ FEXT;NEXT min;NEXT max;FEXT min;FEXT max");
+            "U NEXT [dB];U FEXT [dB];ΔZ NEXT;ΔZ FEXT;NEXT min;NEXT max;FEXT min;FEXT max");
 
         foreach (var row in results)
         {
@@ -36,7 +36,8 @@ public static class ReportGenerator
                 Format(row.FarDb),
                 Format(row.NearLinear),
                 Format(row.FarLinear),
-                Format(row.AnalyzerUncertaintyDb),
+                Format(row.NearAnalyzerUncertaintyDb),
+                Format(row.FarAnalyzerUncertaintyDb),
                 Format(row.NearDelta),
                 Format(row.FarDelta),
                 Format(row.NearLower),
@@ -48,7 +49,7 @@ public static class ReportGenerator
         await writer.WriteLineAsync();
         await writer.WriteLineAsync(
             "Seria;Liczba punktów;Średnia;Odchylenie standardowe;Błąd standardowy;" +
-            "95% CI — dolna granica;95% CI — górna granica");
+            "95% CI - dolna granica;95% CI - górna granica");
 
         foreach (var summary in statistics)
         {
@@ -69,7 +70,9 @@ public static class ReportGenerator
         Stream stream,
         NearFieldStep1ViewModel setup,
         IReadOnlyCollection<NearFieldResult> results,
-        IReadOnlyCollection<NearFieldSummary> summaries)
+        IReadOnlyCollection<NearFieldSummary> summaries,
+        string videoObservations = "",
+        string videoConclusions = "")
     {
         await using var writer = new StreamWriter(
             stream,
@@ -88,7 +91,8 @@ public static class ReportGenerator
         await writer.WriteLineAsync(
             $"Niepewności standardowe [dB];uP={Format(setup.PowerMeterUncertaintyDb)};" +
             $"uK={Format(setup.AmplifierUncertaintyDb)};" +
-            $"uSp={Format(setup.ProbeUncertaintyDb)}");
+            $"uSp={Format(setup.ProbeUncertaintyDb)};" +
+            $"uRep={Format(setup.RepeatabilityUncertaintyDb)}");
         await writer.WriteLineAsync($"Współczynnik rozszerzenia k;{Format(setup.CoverageFactor)}");
         await writer.WriteLineAsync();
         await writer.WriteLineAsync(
@@ -134,6 +138,11 @@ public static class ReportGenerator
                 Format(summary.TrendDbPer100MHz),
                 Format(summary.TrendDbPerDecade)));
         }
+
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync("Analiza dodatkowego nagrania");
+        await writer.WriteLineAsync($"Obserwacje;{EscapeCsv(videoObservations)}");
+        await writer.WriteLineAsync($"Wnioski;{EscapeCsv(videoConclusions)}");
 
         await writer.FlushAsync();
     }
@@ -205,9 +214,84 @@ public static class ReportGenerator
         await writer.FlushAsync();
     }
 
+    public static async Task WritePropagationCsvAsync(
+        Stream stream,
+        PropagationStep1ViewModel setup,
+        IReadOnlyCollection<PropagationResult> results,
+        IReadOnlyCollection<PropagationSummary> summaries)
+    {
+        await using var writer = new StreamWriter(
+            stream,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: true),
+            leaveOpen: true);
+
+        await writer.WriteLineAsync("Pomiary propagacyjne DVB-T (nr 4)");
+        await writer.WriteLineAsync($"Data eksportu;{DateTime.Now:yyyy-MM-dd HH:mm}");
+        await writer.WriteLineAsync($"Częstotliwość [MHz];{Format(setup.FrequencyMHz)}");
+        await writer.WriteLineAsync($"AF [dB/m];{Format(setup.AntennaFactorDb)}");
+        await writer.WriteLineAsync(
+            $"AF [1/m];{Format(PropagationLogic.ConvertAntennaFactorDbToLinear(setup.AntennaFactorDb))}");
+        await writer.WriteLineAsync($"Tłumienie toru ac [dB];{Format(setup.CableLossDb)}");
+        await writer.WriteLineAsync(
+            $"Niepewności [dB];U_odb={Format(setup.ReceiverUncertaintyDb)};" +
+            $"U_AF={Format(setup.AntennaFactorUncertaintyDb)};" +
+            $"k={Format(setup.CoverageFactor)}");
+        await writer.WriteLineAsync(
+            $"Konwencja odczytu;{setup.SelectedInputConvention.Name}");
+        await writer.WriteLineAsync();
+
+        await writer.WriteLineAsync(
+            "Punkt;L H [dB];U H [µV];E H [µV/m];E H [dBµV/m];" +
+            "L V [dB];U V [µV];E V [µV/m];E V [dBµV/m];silniejsza polaryzacja");
+
+        foreach (var row in results)
+        {
+            await writer.WriteLineAsync(string.Join(";",
+                row.PointNumber.ToString(PolishCulture),
+                Format(row.HorizontalLevelDb),
+                Format(row.HorizontalVoltageUv),
+                Format(row.HorizontalFieldUvPerM),
+                Format(row.HorizontalFieldDbuvPerM),
+                Format(row.VerticalLevelDb),
+                Format(row.VerticalVoltageUv),
+                Format(row.VerticalFieldUvPerM),
+                Format(row.VerticalFieldDbuvPerM),
+                row.StrongerPolarizationText));
+        }
+
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync(
+            "Polaryzacja;N;Uav [µV];s(U) [µV];ΔU odb. [µV];" +
+            "Eav [µV/m];Eav [dBµV/m];uE [µV/m];T [µV/m];" +
+            "dolna Eav-T [µV/m];górna Eav+T [µV/m];punkt max;E max [dBµV/m]");
+
+        foreach (var summary in summaries)
+        {
+            await writer.WriteLineAsync(string.Join(";",
+                summary.PolarizationName,
+                summary.Count.ToString(PolishCulture),
+                Format(summary.MeanVoltageUv),
+                Format(summary.StandardDeviationVoltageUv),
+                Format(summary.InstrumentUncertaintyUv),
+                Format(summary.MeanFieldUvPerM),
+                Format(summary.MeanFieldDbuvPerM),
+                Format(summary.FieldStandardUncertaintyUvPerM),
+                Format(summary.ToleranceUvPerM),
+                Format(summary.LowerFieldUvPerM),
+                Format(summary.UpperFieldUvPerM),
+                summary.PeakPointNumber.ToString(PolishCulture),
+                Format(summary.PeakFieldDbuvPerM)));
+        }
+
+        await writer.FlushAsync();
+    }
+
     private static string Format(double value)
         => value.ToString("0.############E+0", PolishCulture);
 
     private static string FormatNullable(double? value)
         => value.HasValue ? Format(value.Value) : string.Empty;
+
+    private static string EscapeCsv(string value)
+        => value.Replace("\r", " ").Replace("\n", " ").Replace(";", ",").Trim();
 }

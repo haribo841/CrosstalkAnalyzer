@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             x:Class="CrosstalkAnalyzer.Views.PropagationStep4View"
+             x:DataType="vm:PropagationStep4ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,*,Auto"
+        RowSpacing="14">
+    <StackPanel Spacing="4">
+      <TextBlock Text="Średnia przestrzenna i tolerancja"
+                 FontSize="20"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="Podsumowanie odpowiada schematowi ze sprawozdania: wynik ma postać Eav ± T."
+                 Foreground="#59677C"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Spacing="16">
+      <DataGrid ItemsSource="{Binding Summaries}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Pol." Width="0.75*" Binding="{Binding PolarizationName}"/>
+          <DataGridTextColumn Header="Eav [dBµV/m]" Width="1.1*" Binding="{Binding MeanFieldText}"/>
+          <DataGridTextColumn Header="T [µV/m]" Width="1.0*" Binding="{Binding ToleranceText}"/>
+          <DataGridTextColumn Header="Eav ± T [µV/m]" Width="1.55*" Binding="{Binding FieldIntervalText}"/>
+          <DataGridTextColumn Header="Punkt max" Width="0.85*" Binding="{Binding PeakPointText}"/>
+          <DataGridTextColumn Header="E max [dBµV/m]" Width="1.1*" Binding="{Binding PeakFieldText}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <Border Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <Grid RowDefinitions="Auto,*,Auto"
+              RowSpacing="8">
+          <Grid ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="12">
+            <TextBlock Text="Pole E w punktach pomiarowych [dBµV/m]"
+                       FontWeight="SemiBold"/>
+            <TextBlock Grid.Column="1" Text="● pozioma" Foreground="#2563EB"/>
+            <TextBlock Grid.Column="2" Text="● pionowa" Foreground="#16A34A"/>
+          </Grid>
+          <controls:PropagationChart Grid.Row="1"
+                                     MinHeight="290"
+                                     Measurements="{Binding Results}"/>
+          <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Text="punkt 1" Foreground="#6A768A" FontSize="11"/>
+            <TextBlock Grid.Column="2" Text="punkt 16" Foreground="#6A768A" FontSize="11"/>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Border Background="#F8FAFD"
+              BorderBrush="#E1E6EF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="14">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Mapa przestrzenna pola 4 × 4"
+                     FontSize="18"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="Kolor pokazuje względny poziom pola w obrębie każdej polaryzacji. W komórce podano numer punktu oraz E [dBµV/m]."
+                     Foreground="#59677C"/>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+            <controls:PropagationHeatmap MinHeight="300"
+                                         Measurements="{Binding Results}"/>
+            <controls:PropagationHeatmap Grid.Column="1"
+                                         MinHeight="300"
+                                         UseVerticalPolarization="True"
+                                         Measurements="{Binding Results}"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <Border Grid.Row="2"
+            Background="#EDF8F1"
+            BorderBrush="#BFE3CC"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12">
+      <TextBlock Text="{Binding ConclusionText}"
+                 Foreground="#245E3A"
+                 TextWrapping="Wrap"/>
+    </Border>
+  </Grid>
+</UserControl>

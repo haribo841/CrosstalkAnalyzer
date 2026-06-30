@@ -9,6 +9,7 @@ public sealed class RadiatedEmissionStep2ViewModel : ViewModelBase
 {
     public ObservableCollection<RadiatedEmissionMeasurementPoint> Measurements { get; } = [];
     public IRelayCommand FillExampleDataCommand { get; }
+    public string ImportStatus { get; private set; } = string.Empty;
 
     public bool CanGoNext => Measurements.All(point =>
         IsFrequencyValid(point.FrequencyMHz) &&
@@ -47,6 +48,33 @@ public sealed class RadiatedEmissionStep2ViewModel : ViewModelBase
             point.VerticalReadingDbuv = null;
             point.VerticalAntennaHeightM = null;
         }
+        SetImportStatus(string.Empty);
+    }
+
+    public void ImportMeasurements(IReadOnlyList<RadiatedEmissionImportRow> rows, string sourceFormat)
+    {
+        if (rows.Count != Measurements.Count)
+            throw new FormatException($"Scenariusz wymaga {Measurements.Count} częstotliwości pomiarowych.");
+
+        foreach (var row in rows)
+        {
+            var target = Measurements.FirstOrDefault(point =>
+                Math.Abs(point.FrequencyMHz - row.FrequencyMHz) < 0.01)
+                ?? throw new FormatException($"Nieoczekiwana częstotliwość {row.FrequencyMHz:0.##} MHz.");
+            target.CableLossDb = row.CableLossDb;
+            target.HorizontalReadingDbuv = row.HorizontalReadingDbuv;
+            target.HorizontalAntennaHeightM = row.HorizontalAntennaHeightM;
+            target.VerticalReadingDbuv = row.VerticalReadingDbuv;
+            target.VerticalAntennaHeightM = row.VerticalAntennaHeightM;
+        }
+
+        SetImportStatus($"Zaimportowano {rows.Count} punktów z pliku {sourceFormat}.");
+    }
+
+    public void SetImportStatus(string status)
+    {
+        ImportStatus = status;
+        OnPropertyChanged(nameof(ImportStatus));
     }
 
     private void FillExampleData()

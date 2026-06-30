@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifiers>win-x86;win-x64;linux-x64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -16,12 +17,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+    <PackageReference Include="Avalonia" Version="12.0.5" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.5" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.5" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
+    <PackageReference Include="MatFileHandler" Version="1.3.0" />
+    <PackageReference Include="Sylinko.CSharpMath.Avalonia" Version="12.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +67,21 @@
     </Compile>
     <Compile Update="Views\RadiatedEmissionStep4View.axaml.cs">
       <DependentUpon>RadiatedEmissionStep4View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PropagationStep1View.axaml.cs">
+      <DependentUpon>PropagationStep1View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PropagationStep2View.axaml.cs">
+      <DependentUpon>PropagationStep2View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PropagationStep3View.axaml.cs">
+      <DependentUpon>PropagationStep3View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PropagationStep4View.axaml.cs">
+      <DependentUpon>PropagationStep4View.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\MathFormulaControl.axaml.cs">
+      <DependentUpon>MathFormulaControl.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.PropagationStep3View"
+             x:DataType="vm:PropagationStep3ViewModel"
+             x:CompileBindings="False">
+  <Grid RowDefinitions="Auto,Auto,*"
+        RowSpacing="14">
+    <Grid ColumnDefinitions="1.45*,*"
+          ColumnSpacing="14">
+      <controls:MathFormulaControl Caption="PRZELICZENIE POZIOMU"
+                                   Latex="{Binding ConversionModeLatex}"
+                                   Description="U - napięcie wejściowe; AF - liniowa poprawka antenowa; ac - tłumienie toru kablowego."
+                                   AccessibleText="Przeliczenie poziomu analizatora na napięcie oraz natężenie pola elektrycznego."/>
+
+      <Border Grid.Column="1"
+              Background="#EEF4FF"
+              BorderBrush="#CADBFF"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <StackPanel Spacing="5">
+          <TextBlock Text="POPRAWKA ANTENOWA"
+                     FontSize="11"
+                     FontWeight="Bold"
+                     Foreground="#315FAD"/>
+          <TextBlock Text="{Binding AntennaFactorLinearText, StringFormat='AF = {0} 1/m'}"
+                     FontSize="17"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="Poprawka antenowa jest przeliczana z dB/m do 1/m przed obliczeniem pola."
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <controls:MathFormulaControl Grid.Row="1"
+                                 Caption="POPRAWKA ANTENOWA I POLE"
+                                 Latex="AF_{\mathrm{lin}}=10^{\frac{AF_{\mathrm{dB/m}}}{20}},\qquad E_{\mathrm{\mu V/m}}=U_{\mathrm{\mu V}}\,AF_{\mathrm{lin}}\,10^{\frac{a_c}{20}}"
+                                 Description="Wyniki są liczone oddzielnie dla obu polaryzacji i porównywane w każdym punkcie siatki."
+                                 AccessibleText="Liniowa poprawka antenowa jest mnożona przez napięcie i współczynnik strat kabla."/>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Results}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Punkt" Width="0.55*" Binding="{Binding PointText}"/>
+        <DataGridTextColumn Header="L H [dB]" Width="0.85*" Binding="{Binding HorizontalLevelText}"/>
+        <DataGridTextColumn Header="U H [µV]" Width="1.0*" Binding="{Binding HorizontalVoltageText}"/>
+        <DataGridTextColumn Header="E H [dBµV/m]" Width="1.15*" Binding="{Binding HorizontalFieldText}"/>
+        <DataGridTextColumn Header="L V [dB]" Width="0.85*" Binding="{Binding VerticalLevelText}"/>
+        <DataGridTextColumn Header="U V [µV]" Width="1.0*" Binding="{Binding VerticalVoltageText}"/>
+        <DataGridTextColumn Header="E V [dBµV/m]" Width="1.15*" Binding="{Binding VerticalFieldText}"/>
+        <DataGridTextColumn Header="silniejsza pol." Width="1.05*" Binding="{Binding StrongerPolarizationText}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

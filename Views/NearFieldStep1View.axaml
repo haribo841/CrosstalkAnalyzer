@@ -5,7 +5,7 @@
              x:DataType="vm:NearFieldStep1ViewModel"
              x:CompileBindings="False">
   <ScrollViewer>
-    <Grid RowDefinitions="Auto,Auto,Auto"
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
           RowSpacing="16">
       <Grid ColumnDefinitions="1.35*,*"
             ColumnSpacing="18">
@@ -18,14 +18,18 @@
             <TextBlock Text="Lista kontrolna stanowiska"
                        FontSize="19"
                        FontWeight="SemiBold"/>
-            <CheckBox Content="Sonda R&amp;S H 400-1 jest połączona przez wzmacniacz z miernikiem mocy."
-                      IsChecked="{Binding ProbeConnected}"/>
-            <CheckBox Content="Generator: sygnał niemodulowany, moc 10 dBm, częstotliwość zgodna z punktem pomiarowym."
-                      IsChecked="{Binding GeneratorConfigured}"/>
-            <CheckBox Content="Miernik R&amp;S NRP: PRESET i częstotliwość zgodna z generatorem."
-                      IsChecked="{Binding PowerMeterConfigured}"/>
-            <CheckBox Content="Sondę przykładam ściśle do kabla, obracam dla maksimum i przesuwam wzdłuż całego kabla."
-                      IsChecked="{Binding MaximumSearchUnderstood}"/>
+            <CheckBox IsChecked="{Binding ProbeConnected}">
+              <TextBlock Text="Sonda R&amp;S H 400-1 jest połączona przez wzmacniacz z miernikiem mocy." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding GeneratorConfigured}">
+              <TextBlock Text="Generator: sygnał niemodulowany, moc 10 dBm, częstotliwość zgodna z punktem pomiarowym." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding PowerMeterConfigured}">
+              <TextBlock Text="Miernik R&amp;S NRP: PRESET i częstotliwość zgodna z generatorem." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding MaximumSearchUnderstood}">
+              <TextBlock Text="Sondę przykładam ściśle do kabla, obracam dla maksimum i przesuwam wzdłuż całego kabla." TextWrapping="Wrap"/>
+            </CheckBox>
           </StackPanel>
         </Border>
 
@@ -54,18 +58,38 @@
               BorderThickness="1"
               CornerRadius="10"
               Padding="16">
-        <Grid ColumnDefinitions="Auto,120,Auto,120,Auto,120"
-              ColumnSpacing="10">
-          <TextBlock Text="Temperatura [°C]" VerticalAlignment="Center"/>
-          <TextBox Grid.Column="1" Text="{Binding TemperatureCelsius}"/>
-          <TextBlock Grid.Column="2" Text="Wilgotność [%]" VerticalAlignment="Center"/>
-          <TextBox Grid.Column="3" Text="{Binding HumidityPercent}"/>
-          <TextBlock Grid.Column="4" Text="Ciśnienie [hPa]" VerticalAlignment="Center"/>
-          <TextBox Grid.Column="5" Text="{Binding PressureHpa}"/>
-        </Grid>
+        <WrapPanel Orientation="Horizontal">
+          <StackPanel Width="190" Margin="0,0,12,10" Spacing="5">
+            <TextBlock Text="Temperatura [°C]"/>
+            <TextBox Text="{Binding TemperatureCelsius}"/>
+          </StackPanel>
+          <StackPanel Width="190" Margin="0,0,12,10" Spacing="5">
+            <TextBlock Text="Wilgotność [%]"/>
+            <TextBox Text="{Binding HumidityPercent}"/>
+          </StackPanel>
+          <StackPanel Width="190" Margin="0,0,12,10" Spacing="5">
+            <TextBlock Text="Ciśnienie [hPa]"/>
+            <TextBox Text="{Binding PressureHpa}"/>
+          </StackPanel>
+        </WrapPanel>
       </Border>
 
       <Border Grid.Row="2"
+              Background="#F1F8FF"
+              BorderBrush="#C9DDFC"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <WrapPanel Orientation="Horizontal">
+          <StackPanel Width="135" Margin="0,0,12,10" Spacing="5"><TextBlock Text="uP [dB]"/><TextBox Text="{Binding PowerMeterUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="135" Margin="0,0,12,10" Spacing="5"><TextBlock Text="uK [dB]"/><TextBox Text="{Binding AmplifierUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="135" Margin="0,0,12,10" Spacing="5"><TextBlock Text="uSp [dB]"/><TextBox Text="{Binding ProbeUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="135" Margin="0,0,12,10" Spacing="5"><TextBlock Text="uRep [dB]"/><TextBox Text="{Binding RepeatabilityUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="135" Margin="0,0,12,10" Spacing="5"><TextBlock Text="k"/><TextBox Text="{Binding CoverageFactor}"/></StackPanel>
+        </WrapPanel>
+      </Border>
+
+      <Border Grid.Row="3"
               Background="#EEF4FF"
               BorderBrush="#CADBFF"
               BorderThickness="1"

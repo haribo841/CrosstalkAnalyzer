@@ -7,7 +7,8 @@ public sealed class MeasurementResult
     public double FarDb { get; init; }
     public double NearLinear { get; init; }
     public double FarLinear { get; init; }
-    public double AnalyzerUncertaintyDb { get; init; }
+    public double NearAnalyzerUncertaintyDb { get; init; }
+    public double FarAnalyzerUncertaintyDb { get; init; }
     public double NearDelta { get; init; }
     public double FarDelta { get; init; }
     public double NearLower => Math.Max(0, NearLinear - NearDelta);
@@ -20,7 +21,8 @@ public sealed class MeasurementResult
     public string FarDbText => FarDb.ToString("0.00");
     public string NearLinearText => Format(NearLinear);
     public string FarLinearText => Format(FarLinear);
-    public string UncertaintyText => AnalyzerUncertaintyDb.ToString("0.0");
+    public string NearUncertaintyText => NearAnalyzerUncertaintyDb.ToString("0.0");
+    public string FarUncertaintyText => FarAnalyzerUncertaintyDb.ToString("0.0");
     public string NearDeltaText => Format(NearDelta);
     public string FarDeltaText => Format(FarDelta);
     public string NearIntervalText => $"⟨{Format(NearLower)}; {Format(NearUpper)}⟩";

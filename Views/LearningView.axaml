@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.LearningView"
+             x:DataType="vm:LearningViewModel"
+             x:CompileBindings="False">
+  <StackPanel Spacing="16">
+    <StackPanel Spacing="5">
+      <TextBlock Text="Moduł wykładowy" FontSize="20" FontWeight="SemiBold"/>
+      <ComboBox ItemsSource="{Binding Modules}"
+                SelectedItem="{Binding SelectedModule}"
+                MaxDropDownHeight="360"/>
+    </StackPanel>
+
+    <Border Classes="card" Background="#F8FAFD">
+      <StackPanel Spacing="10">
+        <TextBlock Text="{Binding SelectedModule.Title}" FontSize="22" FontWeight="SemiBold"/>
+        <TextBlock Text="{Binding SelectedModule.Summary}" Foreground="#315FAD" FontWeight="SemiBold"/>
+        <TextBlock Text="{Binding SelectedModule.Content}" LineHeight="22"/>
+        <controls:MathFormulaControl Caption="RÓWNANIE I ZNACZENIE ZMIENNYCH"
+                                     Latex="{Binding SelectedModule.FormulaLatex}"
+                                     Description="{Binding SelectedModule.FormulaDescription}"
+                                     AccessibleText="{Binding SelectedModule.FormulaDescription}"/>
+        <TextBlock Text="{Binding SelectedModule.Sources, StringFormat='Źródła: {0}'}"
+                   Foreground="#66758B"
+                   FontSize="11"/>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Background="#FFF8ED" BorderBrush="#FED7AA">
+      <StackPanel Spacing="10">
+        <TextBlock Text="Pytania problemowe" FontSize="20" FontWeight="SemiBold"/>
+        <ComboBox ItemsSource="{Binding Questions}" SelectedItem="{Binding SelectedQuestion}"/>
+        <TextBlock Text="{Binding SelectedQuestion.Prompt}" FontWeight="SemiBold"/>
+        <Button Content="Pokaż lub ukryj punkty odpowiedzi"
+                Classes="secondary"
+                HorizontalAlignment="Left"
+                Command="{Binding ToggleKeyPointsCommand}"/>
+        <TextBlock Text="{Binding SelectedQuestion.KeyPoints}"
+                   IsVisible="{Binding ShowKeyPoints}"
+                   Foreground="#6A4A20"/>
+        <TextBox AcceptsReturn="True"
+                 MinHeight="90"
+                 TextWrapping="Wrap"
+                 PlaceholderText="Własna odpowiedź i notatki..."/>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Background="#F1F8FF" BorderBrush="#C9DDFC">
+      <StackPanel Spacing="12">
+        <TextBlock Text="Mini-kalkulatory EMC" FontSize="20" FontWeight="SemiBold"/>
+        <WrapPanel Orientation="Horizontal">
+          <StackPanel Width="220" Margin="0,0,16,12" Spacing="5">
+            <TextBlock Text="Częstotliwość [MHz]"/>
+            <TextBox Text="{Binding FrequencyMHz}"/>
+            <TextBlock Text="{Binding WavelengthMeters, StringFormat='Długość fali: {0:0.###} m'}" FontWeight="SemiBold"/>
+          </StackPanel>
+          <StackPanel Width="220" Margin="0,0,16,12" Spacing="5">
+            <TextBlock Text="Pojemność pasożytnicza [pF]"/>
+            <TextBox Text="{Binding ParasiticCapacitancePf}"/>
+            <TextBlock Text="dv/dt [V/ns]"/>
+            <TextBox Text="{Binding VoltageSlopeVPerNs}"/>
+            <TextBlock Text="{Binding CapacitiveCurrentAmps, StringFormat='Prąd sprzężenia: {0:0.######} A'}" FontWeight="SemiBold"/>
+          </StackPanel>
+          <StackPanel Width="220" Margin="0,0,16,12" Spacing="5">
+            <TextBlock Text="Indukcyjność pasożytnicza [nH]"/>
+            <TextBox Text="{Binding ParasiticInductanceNh}"/>
+            <TextBlock Text="di/dt [A/ns]"/>
+            <TextBox Text="{Binding CurrentSlopeAPerNs}"/>
+            <TextBlock Text="{Binding InductiveVoltageVolts, StringFormat='Napięcie indukowane: {0:0.###} V'}" FontWeight="SemiBold"/>
+          </StackPanel>
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

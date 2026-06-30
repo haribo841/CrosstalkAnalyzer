@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
              xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
              x:Class="CrosstalkAnalyzer.Views.NearFieldStep3View"
              x:DataType="vm:NearFieldStep3ViewModel"
@@ -8,24 +9,10 @@
         RowSpacing="14">
     <Grid ColumnDefinitions="1.45*,*"
           ColumnSpacing="14">
-      <Border Background="#172B4D"
-              CornerRadius="10"
-              Padding="16">
-        <StackPanel Spacing="5">
-          <TextBlock Text="RÓWNANIE PRZETWARZANIA"
-                     Foreground="#8FB3FF"
-                     FontSize="11"
-                     FontWeight="Bold"/>
-          <TextBlock Text="H[dBA/m] = P[dBm] − 30 + 10·log₁₀(50) − K + Sp"
-                     Foreground="White"
-                     FontFamily="Consolas"
-                     FontSize="18"/>
-          <TextBlock Text="H[A/m] = 10 ^ (H[dBA/m] / 20)"
-                     Foreground="#D9E4F7"
-                     FontFamily="Consolas"
-                     FontSize="15"/>
-        </StackPanel>
-      </Border>
+      <controls:MathFormulaControl Caption="RÓWNANIE PRZETWARZANIA"
+                                   Latex="\begin{aligned}H_{\mathrm{dBA/m}}&amp;=P_{\mathrm{dBm}}-30+10\log_{10}(50)-K+S_p\\H_{\mathrm{A/m}}&amp;=10^{\frac{H_{\mathrm{dBA/m}}}{20}}\end{aligned}"
+                                   Description="P - wskazanie miernika mocy; K - wzmocnienie toru; Sp - poprawka sondy."
+                                   AccessibleText="Poziom pola H uwzględnia wskazanie mocy, impedancję pięćdziesiąt omów, wzmocnienie i poprawkę sondy."/>
 
       <Border Grid.Column="1"
               Background="#EEF4FF"
@@ -48,15 +35,11 @@
       </Border>
     </Grid>
 
-    <Border Grid.Row="1"
-            Background="#F8FAFD"
-            BorderBrush="#E1E6EF"
-            BorderThickness="1"
-            CornerRadius="8"
-            Padding="10">
-      <TextBlock Text="uH = √(uP² + uK² + uSp²), gdzie uP = 0,066 dB, uK = 0,2 dB, uSp = 0,3 dB; dla k = 2 otrzymujemy U95 ≈ 0,73 dB."
-                 TextWrapping="Wrap"/>
-    </Border>
+    <controls:MathFormulaControl Grid.Row="1"
+                                 Caption="BUDŻET NIEPEWNOŚCI"
+                                 Latex="u_H=\sqrt{u_P^2+u_K^2+u_{S_p}^2+u_{\mathrm{rep}}^2},\qquad U_{95}=k\,u_H"
+                                 Description="Składniki standardowe są łączone metodą RSS. Współczynnik rozszerzenia k jest konfigurowany w kroku przygotowania."
+                                 AccessibleText="Niepewność standardowa pola jest pierwiastkiem z sumy kwadratów niepewności miernika, wzmocnienia, sondy i powtarzalności."/>
 
     <DataGrid Grid.Row="2"
               ItemsSource="{Binding Results}"

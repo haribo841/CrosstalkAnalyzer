@@ -38,6 +38,7 @@ public static class NearFieldLogic
         double powerMeterUncertaintyDb,
         double amplifierUncertaintyDb,
         double probeUncertaintyDb,
+        double repeatabilityUncertaintyDb,
         double coverageFactor)
     {
         var gain = point.AmplifierGainDb!.Value;
@@ -47,7 +48,7 @@ public static class NearFieldLogic
                 powerMeterUncertaintyDb,
                 amplifierUncertaintyDb,
                 probeUncertaintyDb,
-                0),
+                repeatabilityUncertaintyDb),
             coverageFactor);
 
         return new NearFieldResult

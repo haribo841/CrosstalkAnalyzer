@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.SourceRequirementsView"
+             x:DataType="vm:SourceRequirementsViewModel"
+             x:CompileBindings="False">
+  <StackPanel Spacing="14">
+    <TextBlock Text="Brakujące i niezatwierdzone materiały"
+               FontSize="22"
+               FontWeight="SemiBold"/>
+    <TextBlock Text="Program nie tworzy procedur pomiarowych bez instrukcji prowadzącego. Poniższe pozycje wskazują dokładnie, czego potrzeba do ukończenia pokrycia sylabusa."
+               Foreground="#59677C"/>
+    <ItemsControl ItemsSource="{Binding Requirements}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border Classes="card" Margin="0,0,0,12" Background="#FFF8ED" BorderBrush="#FED7AA">
+            <StackPanel Spacing="7">
+              <TextBlock Text="{Binding Area}" FontSize="18" FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding Status}" Foreground="#B45309" FontWeight="Bold"/>
+              <TextBlock Text="{Binding RequiredMaterial, StringFormat='Potrzebny materiał: {0}'}"/>
+              <TextBlock Text="{Binding Reason}" Foreground="#59677C"/>
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

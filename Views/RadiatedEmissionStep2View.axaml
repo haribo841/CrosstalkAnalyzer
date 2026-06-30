@@ -15,10 +15,12 @@
                    Foreground="#59677C"
                    TextWrapping="Wrap"/>
       </StackPanel>
-      <Button Grid.Column="1"
-              Content="Wstaw dane przykładowe"
-              Classes="secondary"
-              Command="{Binding FillExampleDataCommand}"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Content="Importuj MAT/CSV" Classes="secondary" Click="ImportMeasurements_Click"/>
+        <Button Content="Wstaw dane przykładowe"
+                Classes="secondary"
+                Command="{Binding FillExampleDataCommand}"/>
+      </StackPanel>
     </Grid>
 
     <Border Grid.Row="1"
@@ -59,9 +61,9 @@
       </DataGrid.Columns>
     </DataGrid>
 
-    <TextBlock Grid.Row="3"
-               Text="{Binding ValidationMessage}"
-               Foreground="#59677C"
-               FontWeight="SemiBold"/>
+    <StackPanel Grid.Row="3" Spacing="4">
+      <TextBlock Text="{Binding ImportStatus}" Foreground="#315FAD"/>
+      <TextBlock Text="{Binding ValidationMessage}" Foreground="#59677C" FontWeight="SemiBold"/>
+    </StackPanel>
   </Grid>
 </UserControl>

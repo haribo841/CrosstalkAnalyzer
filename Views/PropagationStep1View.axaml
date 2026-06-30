@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
+             xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
+             x:Class="CrosstalkAnalyzer.Views.PropagationStep1View"
+             x:DataType="vm:PropagationStep1ViewModel"
+             x:CompileBindings="False">
+  <ScrollViewer>
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          RowSpacing="16">
+      <Grid ColumnDefinitions="1.35*,*"
+            ColumnSpacing="18">
+        <Border Background="#F8FAFD"
+                BorderBrush="#E1E6EF"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Lista kontrolna pomiarów propagacyjnych"
+                       FontSize="19"
+                       FontWeight="SemiBold"/>
+            <CheckBox IsChecked="{Binding ReceiverConfigured}">
+              <TextBlock Text="Analizator widma pracuje w zakresie 200 MHz - 1 GHz, a sygnał DVB-T jest obserwowany w okolicy 522 MHz." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding AntennaSetupConfirmed}">
+              <TextBlock Text="Antena logarytmiczno-periodyczna jest ustawiona na maszcie około 1 m i połączona z analizatorem." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding GridUnderstood}">
+              <TextBlock Text="Pomiary wykonuję w 16 punktach pola 1 m × 1 m." TextWrapping="Wrap"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding MaximumSearchConfirmed}">
+              <TextBlock Text="W każdym punkcie obracam antenę i zapisuję maksimum dla polaryzacji poziomej oraz pionowej." TextWrapping="Wrap"/>
+            </CheckBox>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Background="#F1F8FF"
+                BorderBrush="#C9DDFC"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="16">
+          <controls:MathFormulaControl Caption="WZORY UŻYTE W KREATORZE"
+                                       Latex="\begin{aligned}E_{\mathrm{dB\mu V/m}}&amp;=V_{\mathrm{dB\mu V}}+AF_{\mathrm{dB/m}}+a_c\\E_{\mathrm{\mu V/m}}&amp;=U_{\mathrm{\mu V}}AF_{\mathrm{lin}}10^{a_c/20}\end{aligned}"
+                                       Description="Wynik końcowy ma postać średniej przestrzennej Eav z tolerancją T."
+                                       AccessibleText="Pole jest obliczane z napięcia, poprawki antenowej i strat kabla."/>
+        </Border>
+      </Grid>
+
+      <Border Grid.Row="1"
+              Background="#FFF8ED"
+              BorderBrush="#FED7AA"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="16">
+        <WrapPanel Orientation="Horizontal">
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="f [MHz]"/><TextBox Text="{Binding FrequencyMHz}"/></StackPanel>
+          <StackPanel Width="250" Margin="0,0,12,10" Spacing="5"><TextBlock Text="Profil AF"/><ComboBox ItemsSource="{Binding AntennaFactorProfiles}" SelectedItem="{Binding SelectedAntennaFactorProfile}"/></StackPanel>
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="AF [dB/m]"/><TextBox Text="{Binding AntennaFactorDb}"/></StackPanel>
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="U(AF) [dB]"/><TextBox Text="{Binding AntennaFactorUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="U odb. [dB]"/><TextBox Text="{Binding ReceiverUncertaintyDb}"/></StackPanel>
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="ac [dB]"/><TextBox Text="{Binding CableLossDb}"/></StackPanel>
+          <StackPanel Width="150" Margin="0,0,12,10" Spacing="5"><TextBlock Text="k"/><TextBox Text="{Binding CoverageFactor}"/></StackPanel>
+          <StackPanel Width="330" Margin="0,0,12,10" Spacing="5">
+            <TextBlock Text="Konwencja odczytu"/>
+            <ComboBox ItemsSource="{Binding InputConventions}" SelectedItem="{Binding SelectedInputConvention}"/>
+            <TextBlock Text="{Binding InputConventionDescription}" Foreground="#6A4A20" FontSize="11"/>
+          </StackPanel>
+          <TextBlock Width="330" Margin="0,22,0,10" Text="{Binding AntennaFactorSource}" Foreground="#315FAD"/>
+        </WrapPanel>
+      </Border>
+
+      <Border Grid.Row="2"
+              Background="#EDF8F1"
+              BorderBrush="#BFE3CC"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="14">
+        <TextBlock Text="Domyślne dane odpowiadają sprawozdaniu: DVB-T około 522 MHz, polaryzacja pozioma nadajnika RTCN Śrem oraz tabela 16 punktów pomiarowych."
+                   Foreground="#245E3A"
+                   TextWrapping="Wrap"/>
+      </Border>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

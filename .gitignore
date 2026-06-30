@@ -8,3 +8,4 @@ Tests/**/obj/
 *.user
 *.suo
 .vs/
+Artifacts/Installers/

@@ -7,8 +7,8 @@
         Title="EMC Lab Assistant"
         Width="1220"
         Height="800"
-        MinWidth="960"
-        MinHeight="680"
+        MinWidth="820"
+        MinHeight="600"
         Background="#F4F6FA"
         WindowStartupLocation="CenterScreen">
 
@@ -20,7 +20,8 @@
     <Border Grid.Row="0"
             Background="#172B4D"
             Padding="26,18">
-      <Grid ColumnDefinitions="*,370">
+      <Grid ColumnDefinitions="2*,*"
+            ColumnSpacing="24">
         <StackPanel Spacing="3">
           <TextBlock Text="{Binding ApplicationTitle}"
                      Foreground="#8FB3FF"
@@ -44,7 +45,7 @@
         <StackPanel Grid.Column="1"
                     VerticalAlignment="Center"
                     Spacing="8"
-                    IsVisible="{Binding IsAnalysisActive}">
+                    IsVisible="{Binding IsWizardScenario}">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock Text="Postęp badania" Foreground="#C9D5EA"/>
             <TextBlock Grid.Column="1"
@@ -62,52 +63,67 @@
       </Grid>
     </Border>
 
-    <Border Grid.Row="1"
+    <Border x:Name="MainContentBorder"
+            Grid.Row="1"
             Classes="card"
             Margin="24,20,24,14"
-            Padding="22">
-      <ContentControl Content="{Binding CurrentStepViewModel}"/>
+            Padding="22"
+            ClipToBounds="True">
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+        <ContentControl Content="{Binding CurrentStepViewModel}"/>
+      </ScrollViewer>
     </Border>
 
-    <Border Grid.Row="2"
+    <Border x:Name="FooterBorder"
+            Grid.Row="2"
             Background="White"
             BorderBrush="#DDE3EC"
             BorderThickness="0,1,0,0"
             Padding="24,14">
-      <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+      <Grid RowDefinitions="Auto,Auto"
+            RowSpacing="8"
             IsVisible="{Binding IsAnalysisActive}">
-        <Button Content="← Wstecz"
-                Classes="secondary"
-                Command="{Binding PreviousStepCommand}"/>
-        <Button Grid.Column="1"
-                Margin="10,0,0,0"
-                Content="Zmień scenariusz"
-                Classes="secondary"
-                Command="{Binding ChangeScenarioCommand}"/>
-
         <TextBlock x:Name="ExportStatusText"
-                   Grid.Column="2"
-                   Margin="18,0"
+                   Grid.Row="0"
                    VerticalAlignment="Center"
                    Foreground="#28734A"
                    TextWrapping="Wrap"/>
-
-        <StackPanel Grid.Column="3"
-                    Orientation="Horizontal"
-                    Spacing="10">
-          <Button Content="Nowe badanie"
-                  Classes="secondary"
-                  IsVisible="{Binding IsFinalStep}"
-                  Command="{Binding NewAnalysisCommand}"/>
-          <Button Content="Eksportuj CSV"
-                  Classes="primary"
-                  IsVisible="{Binding IsFinalStep}"
-                  Click="ExportCsv_Click"/>
-          <Button Content="Dalej →"
-                  Classes="primary"
-                  IsVisible="{Binding IsNotFinalStep}"
-                  Command="{Binding NextStepCommand}"/>
-        </StackPanel>
+        <Grid x:Name="FooterActionsGrid"
+              Grid.Row="1"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="12">
+          <WrapPanel Orientation="Horizontal">
+            <Button Content="← Wstecz"
+                    Classes="secondary"
+                    Margin="0,0,10,0"
+                    IsVisible="{Binding IsWizardScenario}"
+                    Command="{Binding PreviousStepCommand}"/>
+            <Button Content="Zmień scenariusz"
+                    Classes="secondary"
+                    Command="{Binding ChangeScenarioCommand}"/>
+          </WrapPanel>
+          <WrapPanel Grid.Column="1" Orientation="Horizontal">
+            <Button Content="Nowe badanie"
+                    Classes="secondary"
+                    Margin="0,0,10,0"
+                    IsVisible="{Binding IsFinalStep}"
+                    Command="{Binding NewAnalysisCommand}"/>
+            <Button Content="Eksportuj CSV"
+                    Classes="primary"
+                    Margin="0,0,10,0"
+                    IsVisible="{Binding IsFinalStep}"
+                    Click="ExportCsv_Click"/>
+            <Button Content="Eksportuj DOCX"
+                    Classes="primary"
+                    IsVisible="{Binding IsFinalStep}"
+                    Click="ExportDocx_Click"/>
+            <Button Content="Dalej →"
+                    Classes="primary"
+                    IsVisible="{Binding IsNotFinalStep}"
+                    Command="{Binding NextStepCommand}"/>
+          </WrapPanel>
+        </Grid>
       </Grid>
     </Border>
   </Grid>

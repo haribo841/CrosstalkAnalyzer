@@ -6,4 +6,7 @@ public enum AnalysisScenario
     Crosstalk,
     NearFieldProbes,
     RadiatedEmissionAntennaCorrection,
+    PropagationMeasurements,
+    Learning,
+    SourceRequirements,
 }

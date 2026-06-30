@@ -4,8 +4,7 @@
              x:Class="CrosstalkAnalyzer.Views.ScenarioSelectionView"
              x:DataType="vm:ScenarioSelectionViewModel"
              x:CompileBindings="False">
-  <Grid RowDefinitions="Auto,*"
-        RowSpacing="18">
+  <StackPanel Spacing="18">
     <StackPanel Spacing="5">
       <TextBlock Text="Wybierz ćwiczenie"
                  FontSize="22"
@@ -15,9 +14,10 @@
                  TextWrapping="Wrap"/>
     </StackPanel>
 
-    <Grid Grid.Row="1"
-          ColumnDefinitions="*,*,*"
-          ColumnSpacing="18">
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          ColumnDefinitions="*,*"
+          ColumnSpacing="18"
+          RowSpacing="18">
       <Border Classes="card"
               Background="#F8FAFF"
               BorderBrush="#C9D8FA">
@@ -42,9 +42,9 @@
                      TextWrapping="Wrap"/>
           <StackPanel Grid.Row="2"
                       Spacing="8">
-            <TextBlock Text="• przenik bliski NEXT i daleki FEXT"/>
-            <TextBlock Text="• konwersja dB do skali liniowej"/>
-            <TextBlock Text="• błąd analizatora i 95% przedziały ufności"/>
+            <TextBlock Text="• przenik bliski NEXT i daleki FEXT" TextWrapping="Wrap"/>
+            <TextBlock Text="• konwersja dB do skali liniowej" TextWrapping="Wrap"/>
+            <TextBlock Text="• błąd analizatora i 95% przedziały ufności" TextWrapping="Wrap"/>
           </StackPanel>
           <Button Grid.Row="3"
                   Content="Rozpocznij scenariusz →"
@@ -79,9 +79,9 @@
                      TextWrapping="Wrap"/>
           <StackPanel Grid.Row="2"
                       Spacing="8">
-            <TextBlock Text="• pomiary kabla dla linii 30 Ω, 50 Ω i 100 Ω"/>
-            <TextBlock Text="• poprawka sondy Sp i wzmocnienie K"/>
-            <TextBlock Text="• pole H, niepewność 95% i analiza trendu"/>
+            <TextBlock Text="• pomiary kabla dla linii 30 Ω, 50 Ω i 100 Ω" TextWrapping="Wrap"/>
+            <TextBlock Text="• poprawka sondy Sp i wzmocnienie K" TextWrapping="Wrap"/>
+            <TextBlock Text="• pole H, niepewność 95% i analiza trendu" TextWrapping="Wrap"/>
           </StackPanel>
           <Button Grid.Row="3"
                   Content="Rozpocznij scenariusz →"
@@ -91,7 +91,7 @@
         </Grid>
       </Border>
 
-      <Border Grid.Column="2"
+      <Border Grid.Row="1"
               Classes="card"
               Background="#F6FFF9"
               BorderBrush="#BBE5C8">
@@ -110,15 +110,15 @@
                        VerticalAlignment="Center"/>
           </Border>
           <TextBlock Grid.Row="1"
-                     Text="Emisja promieniowana — poprawka antenowa EN55032 (nr 3)"
+                     Text="Emisja promieniowana - poprawka antenowa EN55032 (nr 3)"
                      FontSize="19"
                      FontWeight="SemiBold"
                      TextWrapping="Wrap"/>
           <StackPanel Grid.Row="2"
                       Spacing="8">
-            <TextBlock Text="• przeliczenie MR, AF i IL na pole E"/>
-            <TextBlock Text="• korekta dipola dla polaryzacji pionowej"/>
-            <TextBlock Text="• limit EN55032, przedział 95% i wykres"/>
+            <TextBlock Text="• przeliczenie MR, AF i IL na pole E" TextWrapping="Wrap"/>
+            <TextBlock Text="• korekta dipola dla polaryzacji pionowej" TextWrapping="Wrap"/>
+            <TextBlock Text="• limit EN55032, przedział 95% i wykres" TextWrapping="Wrap"/>
           </StackPanel>
           <Button Grid.Row="3"
                   Content="Rozpocznij scenariusz →"
@@ -127,6 +127,97 @@
                   Command="{Binding SelectRadiatedEmissionCommand}"/>
         </Grid>
       </Border>
+
+      <Border Grid.Row="1"
+              Grid.Column="1"
+              Classes="card"
+              Background="#F7F3FF"
+              BorderBrush="#D8B4FE">
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="12">
+          <Border Width="54"
+                  Height="54"
+                  Background="#EDE9FE"
+                  CornerRadius="27"
+                  HorizontalAlignment="Left">
+            <TextBlock Text="DVB"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#6D28D9"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Pomiary propagacyjne - DVB-T (nr 4)"
+                     FontSize="19"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"/>
+          <StackPanel Grid.Row="2"
+                      Spacing="8">
+            <TextBlock Text="• siatka 16 punktów pomiarowych" TextWrapping="Wrap"/>
+            <TextBlock Text="• polaryzacja pozioma i pionowa" TextWrapping="Wrap"/>
+            <TextBlock Text="• Eav ± T, wykres i eksport CSV" TextWrapping="Wrap"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Rozpocznij scenariusz →"
+                  Classes="primary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectPropagationCommand}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2"
+              Classes="card"
+              Background="#F1F8FF"
+              BorderBrush="#C9DDFC">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+          <Border Width="54" Height="54" Background="#DBEAFE" CornerRadius="27" HorizontalAlignment="Left">
+            <TextBlock Text="Σ" FontSize="24" FontWeight="Bold" Foreground="#1D4ED8"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Nauka do egzaminu i kalkulatory EMC"
+                     FontSize="19"
+                     FontWeight="SemiBold"/>
+          <StackPanel Grid.Row="2" Spacing="8">
+            <TextBlock Text="• siedem modułów wykładowych"/>
+            <TextBlock Text="• pytania problemowe z podpowiedziami"/>
+            <TextBlock Text="• kalkulatory sprzężeń i długości fali"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Otwórz tryb nauki →"
+                  Classes="primary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectLearningCommand}"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2"
+              Grid.Column="1"
+              Classes="card"
+              Background="#FFF8ED"
+              BorderBrush="#FED7AA">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+          <Border Width="54" Height="54" Background="#FFEDD5" CornerRadius="27" HorizontalAlignment="Left">
+            <TextBlock Text="!" FontSize="24" FontWeight="Bold" Foreground="#C2410C"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="Brakujące instrukcje i stan pokrycia"
+                     FontSize="19"
+                     FontWeight="SemiBold"/>
+          <StackPanel Grid.Row="2" Spacing="8">
+            <TextBlock Text="• dwa laboratoria oczekujące na instrukcje"/>
+            <TextBlock Text="• walidacja źródeł ćwiczenia nr 4"/>
+            <TextBlock Text="• brakujące wykłady cz02 i cz07"/>
+          </StackPanel>
+          <Button Grid.Row="3"
+                  Content="Pokaż wymagane materiały →"
+                  Classes="secondary"
+                  HorizontalAlignment="Left"
+                  Command="{Binding SelectSourceRequirementsCommand}"/>
+        </Grid>
+      </Border>
     </Grid>
-  </Grid>
+  </StackPanel>
 </UserControl>

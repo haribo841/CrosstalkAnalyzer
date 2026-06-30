@@ -24,6 +24,7 @@ public sealed class NearFieldStep2ViewModel : ViewModelBase
 
     public ObservableCollection<NearFieldMeasurementPoint> Measurements { get; } = [];
     public IRelayCommand FillExampleDataCommand { get; }
+    public string ImportStatus { get; private set; } = string.Empty;
 
     public bool CanGoNext => Measurements.All(point =>
         IsPowerValid(point.Power30OhmDbm) &&
@@ -62,6 +63,33 @@ public sealed class NearFieldStep2ViewModel : ViewModelBase
             point.Power50OhmDbm = null;
             point.Power100OhmDbm = null;
         }
+        SetImportStatus(string.Empty);
+    }
+
+    public void ImportMeasurements(IReadOnlyList<NearFieldImportRow> rows)
+    {
+        if (rows.Count != Measurements.Count)
+            throw new FormatException($"Scenariusz wymaga {Measurements.Count} punktów od 100 do 1000 MHz.");
+
+        foreach (var row in rows)
+        {
+            var target = Measurements.FirstOrDefault(point =>
+                Math.Abs(point.FrequencyMHz - row.FrequencyMHz) < 0.01)
+                ?? throw new FormatException($"Nieoczekiwana częstotliwość {row.FrequencyMHz:0.##} MHz.");
+            target.Power30OhmDbm = row.Power30OhmDbm;
+            target.Power50OhmDbm = row.Power50OhmDbm;
+            target.Power100OhmDbm = row.Power100OhmDbm;
+            target.AmplifierGainDb = row.AmplifierGainDb;
+            target.ProbeCorrectionDb = row.ProbeCorrectionDb;
+        }
+
+        SetImportStatus($"Zaimportowano {rows.Count} punktów z pliku CSV.");
+    }
+
+    public void SetImportStatus(string status)
+    {
+        ImportStatus = status;
+        OnPropertyChanged(nameof(ImportStatus));
     }
 
     private void FillExampleData()

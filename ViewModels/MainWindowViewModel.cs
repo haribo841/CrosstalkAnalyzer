@@ -26,6 +26,13 @@ public sealed class MainWindowViewModel : ViewModelBase
     public RadiatedEmissionStep3ViewModel RadiatedEmissionStep3 { get; } = new();
     public RadiatedEmissionStep4ViewModel RadiatedEmissionStep4 { get; } = new();
 
+    public PropagationStep1ViewModel PropagationStep1 { get; } = new();
+    public PropagationStep2ViewModel PropagationStep2 { get; } = new();
+    public PropagationStep3ViewModel PropagationStep3 { get; } = new();
+    public PropagationStep4ViewModel PropagationStep4 { get; } = new();
+    public LearningViewModel Learning { get; } = new();
+    public SourceRequirementsViewModel SourceRequirements { get; } = new();
+
     public AnalysisScenario CurrentScenario
     {
         get => _currentScenario;
@@ -61,7 +68,13 @@ public sealed class MainWindowViewModel : ViewModelBase
         AnalysisScenario.NearFieldProbes =>
             "Sondy pola bliskiego w analizie emisji promieniowanej",
         AnalysisScenario.RadiatedEmissionAntennaCorrection =>
-            "Emisja promieniowana — poprawka antenowa EN55032",
+            "Emisja promieniowana - poprawka antenowa EN55032",
+        AnalysisScenario.PropagationMeasurements =>
+            "Pomiary propagacyjne - DVB-T",
+        AnalysisScenario.Learning =>
+            "Tryb nauki do egzaminu",
+        AnalysisScenario.SourceRequirements =>
+            "Brakujące instrukcje i źródła",
         _ => "Wybierz scenariusz laboratoryjny",
     };
 
@@ -92,6 +105,16 @@ public sealed class MainWindowViewModel : ViewModelBase
             4 => "Limit, przedziały ufności i wykres",
             _ => string.Empty,
         },
+        AnalysisScenario.PropagationMeasurements => CurrentStep switch
+        {
+            1 => "Stanowisko i założenia pomiaru DVB-T",
+            2 => "Tabela 16 punktów pomiarowych",
+            3 => "Przeliczenie poziomów na pole E",
+            4 => "Średnia, tolerancja i wykres",
+            _ => string.Empty,
+        },
+        AnalysisScenario.Learning => "Wykład, pytania i kalkulatory EMC",
+        AnalysisScenario.SourceRequirements => "Stan pokrycia sylabusa",
         _ => string.Empty,
     };
 
@@ -123,14 +146,31 @@ public sealed class MainWindowViewModel : ViewModelBase
             4 => "Wybierz maksimum z polaryzacji i porównaj wynik z limitem EN55032.",
             _ => string.Empty,
         },
+        AnalysisScenario.PropagationMeasurements => CurrentStep switch
+        {
+            1 => "Ustaw parametry anteny, analizatora i konwencję przeliczania odczytów.",
+            2 => "Wprowadź poziomy dla polaryzacji poziomej i pionowej w 16 punktach.",
+            3 => "Przelicz odczyty na µV oraz pole elektryczne w dBµV/m.",
+            4 => "Porównaj polaryzacje, średni poziom pola i tolerancję Eav ± T.",
+            _ => string.Empty,
+        },
+        AnalysisScenario.Learning =>
+            "Wybierz moduł wykładowy, przeanalizuj równania i przećwicz pytania problemowe.",
+        AnalysisScenario.SourceRequirements =>
+            "Sprawdź, których materiałów prowadzącego nadal potrzeba do wdrożenia dwóch laboratoriów.",
         _ => string.Empty,
     };
 
     public bool IsScenarioSelection => CurrentScenario == AnalysisScenario.None;
     public bool IsAnalysisActive => !IsScenarioSelection;
-    public bool CanGoBack => IsAnalysisActive && CurrentStep > 1;
+    public bool IsWizardScenario => CurrentScenario is
+        AnalysisScenario.Crosstalk or
+        AnalysisScenario.NearFieldProbes or
+        AnalysisScenario.RadiatedEmissionAntennaCorrection or
+        AnalysisScenario.PropagationMeasurements;
+    public bool CanGoBack => IsWizardScenario && CurrentStep > 1;
     public bool CanGoNext =>
-        IsAnalysisActive &&
+        IsWizardScenario &&
         CurrentStep < 4 &&
         (CurrentScenario switch
         {
@@ -147,11 +187,17 @@ public sealed class MainWindowViewModel : ViewModelBase
                 2 => RadiatedEmissionStep2.CanGoNext,
                 _ => true,
             },
+            AnalysisScenario.PropagationMeasurements => CurrentStep switch
+            {
+                1 => PropagationStep1.CanGoNext,
+                2 => PropagationStep2.CanGoNext,
+                _ => true,
+            },
             _ => false,
         });
 
-    public bool IsFinalStep => IsAnalysisActive && CurrentStep == 4;
-    public bool IsNotFinalStep => IsAnalysisActive && !IsFinalStep;
+    public bool IsFinalStep => IsWizardScenario && CurrentStep == 4;
+    public bool IsNotFinalStep => IsWizardScenario && !IsFinalStep;
     public string StepCounter => $"Krok {CurrentStep} z 4";
     public double ProgressValue => CurrentStep;
 
@@ -165,7 +211,10 @@ public sealed class MainWindowViewModel : ViewModelBase
         ScenarioSelection = new ScenarioSelectionViewModel(
             () => SelectScenario(AnalysisScenario.Crosstalk),
             () => SelectScenario(AnalysisScenario.NearFieldProbes),
-            () => SelectScenario(AnalysisScenario.RadiatedEmissionAntennaCorrection));
+            () => SelectScenario(AnalysisScenario.RadiatedEmissionAntennaCorrection),
+            () => SelectScenario(AnalysisScenario.PropagationMeasurements),
+            () => SelectScenario(AnalysisScenario.Learning),
+            () => SelectScenario(AnalysisScenario.SourceRequirements));
         _currentStepViewModel = ScenarioSelection;
 
         NextStepCommand = new RelayCommand(GoNext, () => CanGoNext);
@@ -178,6 +227,8 @@ public sealed class MainWindowViewModel : ViewModelBase
         NearFieldStep2.PropertyChanged += ValidationPropertyChanged;
         RadiatedEmissionStep1.PropertyChanged += ValidationPropertyChanged;
         RadiatedEmissionStep2.PropertyChanged += ValidationPropertyChanged;
+        PropagationStep1.PropertyChanged += ValidationPropertyChanged;
+        PropagationStep2.PropertyChanged += ValidationPropertyChanged;
     }
 
     private void ValidationPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -186,7 +237,9 @@ public sealed class MainWindowViewModel : ViewModelBase
             or nameof(NearFieldStep1ViewModel.CanGoNext)
             or nameof(NearFieldStep2ViewModel.CanGoNext)
             or nameof(RadiatedEmissionStep1ViewModel.CanGoNext)
-            or nameof(RadiatedEmissionStep2ViewModel.CanGoNext))
+            or nameof(RadiatedEmissionStep2ViewModel.CanGoNext)
+            or nameof(PropagationStep1ViewModel.CanGoNext)
+            or nameof(PropagationStep2ViewModel.CanGoNext))
         {
             OnPropertyChanged(nameof(CanGoNext));
             NextStepCommand.NotifyCanExecuteChanged();
@@ -202,6 +255,9 @@ public sealed class MainWindowViewModel : ViewModelBase
             AnalysisScenario.Crosstalk => Step1,
             AnalysisScenario.NearFieldProbes => NearFieldStep1,
             AnalysisScenario.RadiatedEmissionAntennaCorrection => RadiatedEmissionStep1,
+            AnalysisScenario.PropagationMeasurements => PropagationStep1,
+            AnalysisScenario.Learning => Learning,
+            AnalysisScenario.SourceRequirements => SourceRequirements,
             _ => ScenarioSelection,
         };
     }
@@ -214,6 +270,8 @@ public sealed class MainWindowViewModel : ViewModelBase
             GoNextNearField();
         else if (CurrentScenario == AnalysisScenario.RadiatedEmissionAntennaCorrection)
             GoNextRadiatedEmission();
+        else if (CurrentScenario == AnalysisScenario.PropagationMeasurements)
+            GoNextPropagation();
     }
 
     private void GoNextCrosstalk()
@@ -275,6 +333,28 @@ public sealed class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private void GoNextPropagation()
+    {
+        switch (CurrentStep)
+        {
+            case 1:
+                SetStep(2, PropagationStep2);
+                break;
+            case 2:
+                PropagationStep3.Prepare(
+                    PropagationStep2.Measurements,
+                    PropagationStep1);
+                SetStep(3, PropagationStep3);
+                break;
+            case 3:
+                PropagationStep4.Prepare(
+                    PropagationStep3.Results,
+                    PropagationStep1);
+                SetStep(4, PropagationStep4);
+                break;
+        }
+    }
+
     private void GoBack()
     {
         var step = CurrentStep - 1;
@@ -298,6 +378,12 @@ public sealed class MainWindowViewModel : ViewModelBase
                 2 => RadiatedEmissionStep2,
                 _ => RadiatedEmissionStep3,
             },
+            AnalysisScenario.PropagationMeasurements => step switch
+            {
+                1 => PropagationStep1,
+                2 => PropagationStep2,
+                _ => PropagationStep3,
+            },
             _ => ScenarioSelection,
         };
         SetStep(step, viewModel);
@@ -314,6 +400,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         {
             NearFieldStep1.Reset();
             NearFieldStep2.Reset();
+            NearFieldStep4.Reset();
             SetStep(1, NearFieldStep1);
         }
         else if (CurrentScenario == AnalysisScenario.RadiatedEmissionAntennaCorrection)
@@ -321,6 +408,12 @@ public sealed class MainWindowViewModel : ViewModelBase
             RadiatedEmissionStep1.Reset();
             RadiatedEmissionStep2.Reset();
             SetStep(1, RadiatedEmissionStep1);
+        }
+        else if (CurrentScenario == AnalysisScenario.PropagationMeasurements)
+        {
+            PropagationStep1.Reset();
+            PropagationStep2.Reset();
+            SetStep(1, PropagationStep1);
         }
     }
 
@@ -344,6 +437,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(StepDescription));
         OnPropertyChanged(nameof(IsScenarioSelection));
         OnPropertyChanged(nameof(IsAnalysisActive));
+        OnPropertyChanged(nameof(IsWizardScenario));
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanGoNext));
         OnPropertyChanged(nameof(IsFinalStep));

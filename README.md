@@ -1,98 +1,112 @@
 # EMC Lab Assistant
 
-Wieloplatformowa aplikacja w C# i Avalonia UI, która prowadzi użytkownika
-krok po kroku przez ćwiczenia z kompatybilności elektromagnetycznej.
+Wieloplatformowa aplikacja C# i Avalonia UI prowadząca użytkownika przez
+ćwiczenia z kompatybilności elektromagnetycznej. Interfejs działa jako kreator,
+waliduje dane, składa równania matematyczne, wykonuje obliczenia i przygotowuje
+wyniki do sprawozdania.
 
-## Dostępne scenariusze
+## Moduły programu
 
 ### 1. Pomiar przeników między liniami mikropaskowymi
 
-- wybór pasma 1–2 GHz, 2–3 GHz albo 7–8 GHz,
-- wprowadzanie wartości NEXT i FEXT,
+- pasma 1-2 GHz, 2-3 GHz oraz 7-8 GHz,
+- import 11 punktów z CSV/TXT,
+- niezależne niepewności NEXT i FEXT,
 - konwersja `|Z|lin = 10^(|Z|dB / 20)`,
-- obliczenie błędu analizatora,
-- statystyka, przedziały ufności, wykres i eksport CSV.
+- błąd analizatora i granice wyniku,
+- statystyka, 95% przedziały ufności i wykres.
 
 ### 2. Sondy pola bliskiego w analizie emisji promieniowanej
 
-Scenariusz został przygotowany na podstawie instrukcji ćwiczenia nr 2,
-materiału „Obliczenia do pomiarów sondami pola bliskiego”, charakterystyk
-sondy i wzmacniacza oraz wzorca sprawozdania.
+- lista kontrolna generatora, miernika R&S NRP, sondy i wzmacniacza,
+- warunki środowiskowe,
+- import CSV/TXT dla 100-1000 MHz,
+- pomiary linii 30 Ω, 50 Ω i 100 Ω,
+- edytowalne charakterystyki `K` i `Sp`,
+- pole magnetyczne w dBA/m i A/m,
+- budżet `uP`, `uK`, `uSp`, `uRep` oraz `U95 = k * uH`,
+- maksima, trendy, wykres i analiza dodatkowego nagrania.
 
-Kreator obejmuje:
+### 3. Emisja promieniowana - poprawka antenowa EN 55032
 
-- listę kontrolną generatora, miernika R&S NRP, sondy H 400-1 i wzmacniacza,
-- zapis warunków środowiskowych,
-- pomiary od 100 MHz do 1000 MHz dla linii 30 Ω, 50 Ω i 100 Ω,
-- edytowalne wartości wzmocnienia `K` i poprawki sondy `Sp`,
-- obliczenie pola magnetycznego:
+- import CSV/TXT i plików MATLAB z oryginalną strukturą `Data`,
+- wskazania `MR`, tłumienie `IL` i wysokości anteny,
+- poprawka antenowa i korekta polaryzacji pionowej,
+- pole E dla obu polaryzacji,
+- budżet niepewności, limity klasy B i margines zgodności.
 
-  `H[dBA/m] = P[dBm] − 30 + 10·log10(50) − K + Sp`,
+### 4. Pomiary propagacyjne DVB-T
 
-- konwersję `H[A/m] = 10^(H[dBA/m]/20)`,
-- budżet niepewności:
+- siatka 16 punktów dla polaryzacji poziomej i pionowej,
+- import CSV/TXT,
+- profile AF anteny UHALP 9108 A1 z interpolacją,
+- tryb ręcznego AF,
+- trzy konwencje wejścia: historyczna, dBµV oraz dBm/50 Ω,
+- średnia przestrzenna, niepewność i tolerancja `Eav ± T`,
+- wykres oraz mapy cieplne 4 x 4.
 
-  `uH = √(uP² + uK² + uSp²)`,
+Scenariusz nr 4 jest oparty na sprawozdaniach i rekomendacjach ITU-R. Wymaga
+zatwierdzenia względem oryginalnej instrukcji prowadzącego, której nie było w
+audytowanym katalogu.
 
-- 95% przedziały z niepewnością rozszerzoną `U = k·uH`,
-- porównanie charakterystyk, maksima oraz trendy w dB/100 MHz i dB/dekadę,
-- eksport kompletnej tabeli do CSV.
+### 5. Nauka
 
-Domyślne wartości to `uP = 0,066 dB`, `uK = 0,2 dB`, `uSp = 0,3 dB`
-i `k = 2`, co daje `uH ≈ 0,367 dB` oraz `U ≈ 0,733 dB`.
+Siedem bloków tematycznych obejmuje mechanizmy zakłóceń, przesłuchy,
+uziemianie, ekranowanie, normy, aparaturę i dopasowanie. Moduł zawiera pytania
+kontrolne oraz kalkulatory długości fali, prądu pojemnościowego i napięcia
+indukowanego.
 
-### 3. Emisja promieniowana — poprawka antenowa EN55032
+### 6. Pokrycie materiału
 
-Scenariusz został przygotowany na podstawie instrukcji ćwiczenia nr 3
-„Emisja promieniowana — poprawka antenowa, scenariusz pomiarowy normy
-EN55032” oraz przykładowego sprawozdania.
+Program jawnie wskazuje elementy, których nie uznano za wdrożone bez źródeł:
 
-Kreator obejmuje:
+- pomiary pola dla ochrony środowiska,
+- badanie analizatora widma i pomiar promieniowania,
+- zatwierdzenie instrukcji pomiarów propagacyjnych,
+- wykłady cz02 i cz07.
 
-- listę kontrolną geometrii pomiaru, dwóch polaryzacji i budżetu niepewności,
-- częstotliwości 30 MHz, 50 MHz oraz 100-1000 MHz co 50 MHz,
-- wpisywanie surowych wskazań analizatora `MR [dBµV]`, wysokości anteny
-  oraz tłumienia kabla `IL [dB]`,
-- wyznaczanie poprawki antenowej dipola półfalowego:
+Szczegóły audytu: [Documentation/COURSE_COVERAGE.md](Documentation/COURSE_COVERAGE.md).
 
-  `AF = 20·log10(9,73 / (λ·√G)), G = 1,64`,
+## Interfejs i wzory
 
-- korektę poprawki antenowej dla polaryzacji pionowej na podstawie kąta
-  `α = atan(h / d)`,
-- obliczenie pola elektrycznego:
+- minimalny rozmiar okna: 820 x 600,
+- pionowe przewijanie treści i przewijanie tabel,
+- formularze zawijające pola przy mniejszej szerokości,
+- osobny obszar statusu eksportu,
+- równania składane przez CSharpMath zamiast surowego tekstu,
+- testy headless wykrywające kolizje przycisków z tekstem.
 
-  `E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]`,
+## Import i eksport
 
-- 95% przedział ufności:
+CSV/TXT może używać średnika, tabulatora albo przecinka. Parser obsługuje
+polski i niezmienny format liczb. Scenariusz nr 3 odczytuje dodatkowo MATLAB 5.
 
-  `U_E = √(U_MR² + U_AF² + U_IL²)`,
+Na ostatnim kroku dostępne są:
 
-- porównanie maksymalnej emisji z limitem EN55032 klasy B dla odległości 3 m:
-  `40 dBµV/m` dla 30-230 MHz i `47 dBµV/m` dla 230-1000 MHz,
-- wykres emisji z przedziałami niepewności i eksport tabeli do CSV.
+- `Eksportuj CSV` - dane surowe, pośrednie i podsumowanie,
+- `Eksportuj DOCX` - raport z metadanymi, równaniami, tabelami i miejscem na
+  wnioski.
 
-## Uruchomienie
+## Budowanie i testy
 
-Wymagany jest .NET 8 SDK:
+Wymagany jest .NET 8 SDK.
 
 ```powershell
-dotnet restore
-dotnet run
+dotnet restore CrosstalkAnalyzer.sln
+dotnet build CrosstalkAnalyzer.sln -c Release
+dotnet run --project CrosstalkAnalyzer.csproj
 ```
 
-AvaloniaUI & DataGrid:
-
-```CLI
-dotnet new install Avalonia.Templates
-dotnet add package Avalonia.Controls.DataGrid
-```
-
-
-
-Test obliczeń, nawigacji i eksportu:
+Testy obliczeń, importu, eksportu i nawigacji:
 
 ```powershell
 dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks
+```
+
+Testy układu Avalonia w trybie headless:
+
+```powershell
+dotnet run --project Tests/CrosstalkAnalyzer.UiTests
 ```
 
 ## Publikowanie
@@ -100,23 +114,15 @@ dotnet run --project Tests/CrosstalkAnalyzer.CalculationChecks
 Windows x64:
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true
+dotnet publish CrosstalkAnalyzer.csproj -c Release -r win-x64 --self-contained true
 ```
 
 Linux x64:
 
 ```powershell
-dotnet publish -c Release -r linux-x64 --self-contained true
+dotnet publish CrosstalkAnalyzer.csproj -c Release -r linux-x64 --self-contained true
 ```
 
-Wynik znajduje się w katalogu
-`bin/Release/net8.0/<identyfikator-systemu>/publish`.
-
-## Zgodność systemowa
-
-Projekt celuje w .NET 8 i Avalonia 12. Jest przeznaczony dla Linuksa oraz
-Windows 10/11. Windows 7 i Windows 8.1 nie są oficjalnie obsługiwane przez
-wymagany runtime .NET 8.
-
-- [Platformy obsługiwane przez Avalonia](https://docs.avaloniaui.net/docs/overview/supported-platforms)
-- [Instalacja i wymagania .NET na Windows](https://learn.microsoft.com/dotnet/core/install/windows)
+Projekt celuje w .NET 8 i Avalonia 12. Jest przeznaczony dla Windows 10/11
+oraz Linux x64. Windows 7 i Windows 8.1 nie są oficjalnie wspierane przez
+runtime .NET 8.

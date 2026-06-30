@@ -25,7 +25,7 @@ public sealed class NearFieldStep3ViewModel : ViewModelBase
                 setup.PowerMeterUncertaintyDb,
                 setup.AmplifierUncertaintyDb,
                 setup.ProbeUncertaintyDb,
-                0);
+                setup.RepeatabilityUncertaintyDb);
         ExpandedUncertaintyDb =
             NearFieldLogic.CalculateExpandedUncertainty(
                 CombinedStandardUncertaintyDb,
@@ -38,6 +38,7 @@ public sealed class NearFieldStep3ViewModel : ViewModelBase
                 setup.PowerMeterUncertaintyDb,
                 setup.AmplifierUncertaintyDb,
                 setup.ProbeUncertaintyDb,
+                setup.RepeatabilityUncertaintyDb,
                 setup.CoverageFactor));
         }
 

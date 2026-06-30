@@ -24,9 +24,7 @@
       </Border>
     </Grid>
 
-    <Grid Grid.Row="1"
-          ColumnDefinitions="1.08*,1.45*"
-          ColumnSpacing="16">
+    <StackPanel Grid.Row="1" Spacing="16">
       <Border Background="#F8FAFD"
               BorderBrush="#E1E6EF"
               BorderThickness="1"
@@ -36,16 +34,11 @@
               RowSpacing="10">
           <TextBlock Text="95% przedział ufności średniej"
                      FontWeight="SemiBold"/>
-          <Border Grid.Row="1"
-                  Background="#172B4D"
-                  CornerRadius="8"
-                  Padding="12">
-            <TextBlock Text="x̄ ± t(0,975; n−1) · s / √n"
-                       Foreground="White"
-                       FontFamily="Consolas"
-                       FontSize="17"
-                       HorizontalAlignment="Center"/>
-          </Border>
+          <controls:MathFormulaControl Grid.Row="1"
+                                       Caption="PRZEDZIAŁ UFNOŚCI ŚREDNIEJ"
+                                       Latex="\bar{x}\pm t_{0{,}975;\,n-1}\frac{s}{\sqrt{n}}"
+                                       Description="s - odchylenie standardowe próby; n - liczba obserwacji."
+                                       AccessibleText="Średnia plus lub minus wartość krytyczna rozkładu t razy odchylenie standardowe przez pierwiastek z liczby obserwacji."/>
           <DataGrid Grid.Row="2"
                     ItemsSource="{Binding Statistics}"
                     AutoGenerateColumns="False"
@@ -71,8 +64,7 @@
         </Grid>
       </Border>
 
-      <Border Grid.Column="1"
-              Background="#F8FAFD"
+      <Border Background="#F8FAFD"
               BorderBrush="#E1E6EF"
               BorderThickness="1"
               CornerRadius="10"
@@ -117,7 +109,7 @@
           </Grid>
         </Grid>
       </Border>
-    </Grid>
+    </StackPanel>
 
     <Border Grid.Row="2"
             Background="#EDF8F1"

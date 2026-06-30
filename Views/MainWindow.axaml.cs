@@ -23,6 +23,7 @@ public partial class MainWindow : Window
         {
             AnalysisScenario.NearFieldProbes => "sondy_pola_bliskiego",
             AnalysisScenario.RadiatedEmissionAntennaCorrection => "emisja_promieniowana_en55032",
+            AnalysisScenario.PropagationMeasurements => "pomiary_propagacyjne_dvbt",
             _ => "przeniki",
         };
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
@@ -54,7 +55,9 @@ public partial class MainWindow : Window
                     stream,
                     viewModel.NearFieldStep1,
                     viewModel.NearFieldStep4.Results,
-                    viewModel.NearFieldStep4.Summaries);
+                    viewModel.NearFieldStep4.Summaries,
+                    viewModel.NearFieldStep4.VideoObservations,
+                    viewModel.NearFieldStep4.VideoConclusions);
             }
             else if (viewModel.CurrentScenario == AnalysisScenario.RadiatedEmissionAntennaCorrection)
             {
@@ -63,6 +66,14 @@ public partial class MainWindow : Window
                     viewModel.RadiatedEmissionStep1,
                     viewModel.RadiatedEmissionStep4.Results,
                     viewModel.RadiatedEmissionStep4.Summary);
+            }
+            else if (viewModel.CurrentScenario == AnalysisScenario.PropagationMeasurements)
+            {
+                await ReportGenerator.WritePropagationCsvAsync(
+                    stream,
+                    viewModel.PropagationStep1,
+                    viewModel.PropagationStep4.Results,
+                    viewModel.PropagationStep4.Summaries);
             }
             else
             {
@@ -84,4 +95,52 @@ public partial class MainWindow : Window
             ExportStatusText.Text = $"Nie udało się zapisać pliku: {exception.Message}";
         }
     }
+
+    private async void ExportDocx_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel viewModel)
+            return;
+
+        var prefix = GetExportPrefix(viewModel.CurrentScenario);
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Zapisz raport z badania",
+            SuggestedFileName = $"{prefix}_{DateTime.Now:yyyyMMdd_HHmm}.docx",
+            DefaultExtension = "docx",
+            FileTypeChoices =
+            [
+                new FilePickerFileType("Dokument Word")
+                {
+                    Patterns = ["*.docx"],
+                    MimeTypes = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+                },
+            ],
+        });
+
+        if (file is null)
+            return;
+
+        try
+        {
+            await using var stream = await file.OpenWriteAsync();
+            stream.SetLength(0);
+            await DocxReportGenerator.WriteAsync(stream, viewModel);
+            ExportStatusText.Foreground = new SolidColorBrush(Color.Parse("#28734A"));
+            ExportStatusText.Text = "Zapisano raport DOCX z tabelami, równaniami i podsumowaniem.";
+        }
+        catch (Exception exception)
+        {
+            ExportStatusText.Foreground = new SolidColorBrush(Color.Parse("#B42318"));
+            ExportStatusText.Text = $"Nie udało się zapisać raportu: {exception.Message}";
+        }
+    }
+
+    private static string GetExportPrefix(AnalysisScenario scenario)
+        => scenario switch
+        {
+            AnalysisScenario.NearFieldProbes => "sondy_pola_bliskiego",
+            AnalysisScenario.RadiatedEmissionAntennaCorrection => "emisja_promieniowana_en55032",
+            AnalysisScenario.PropagationMeasurements => "pomiary_propagacyjne_dvbt",
+            _ => "przeniki",
+        };
 }

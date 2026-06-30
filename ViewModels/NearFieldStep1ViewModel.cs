@@ -39,6 +39,9 @@ public partial class NearFieldStep1ViewModel : ViewModelBase
     private double _probeUncertaintyDb = 0.3;
 
     [ObservableProperty]
+    private double _repeatabilityUncertaintyDb;
+
+    [ObservableProperty]
     private double _coverageFactor = 2;
 
     public bool CanGoNext =>
@@ -53,5 +56,6 @@ public partial class NearFieldStep1ViewModel : ViewModelBase
         GeneratorConfigured = false;
         PowerMeterConfigured = false;
         MaximumSearchUnderstood = false;
+        RepeatabilityUncertaintyDb = 0;
     }
 }

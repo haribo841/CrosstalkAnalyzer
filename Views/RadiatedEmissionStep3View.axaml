@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
              xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
              x:Class="CrosstalkAnalyzer.Views.RadiatedEmissionStep3View"
              x:DataType="vm:RadiatedEmissionStep3ViewModel"
@@ -8,24 +9,10 @@
         RowSpacing="14">
     <Grid ColumnDefinitions="1.45*,*"
           ColumnSpacing="14">
-      <Border Background="#172B4D"
-              CornerRadius="10"
-              Padding="16">
-        <StackPanel Spacing="5">
-          <TextBlock Text="RÓWNANIE PRZETWARZANIA"
-                     Foreground="#8FB3FF"
-                     FontSize="11"
-                     FontWeight="Bold"/>
-          <TextBlock Text="E[dBµV/m] = MR[dBµV] + AF[dB/m] + IL[dB]"
-                     Foreground="White"
-                     FontFamily="Consolas"
-                     FontSize="18"/>
-          <TextBlock Text="AF_V_corr = AF + korekta(α),  α = atan(hV / 3 m)"
-                     Foreground="#D9E4F7"
-                     FontFamily="Consolas"
-                     FontSize="15"/>
-        </StackPanel>
-      </Border>
+      <controls:MathFormulaControl Caption="RÓWNANIE PRZETWARZANIA"
+                                   Latex="\begin{aligned}E_{\mathrm{dB\mu V/m}}&amp;=MR_{\mathrm{dB\mu V}}+AF_{\mathrm{dB/m}}+IL_{\mathrm{dB}}\\AF_{V,\mathrm{corr}}&amp;=AF+\Delta AF(\alpha),\quad \alpha=\arctan\left(\frac{h_V}{d}\right)\end{aligned}"
+                                   Description="MR - wskazanie odbiornika; AF - poprawka antenowa; IL - tłumienie kabla; d - odległość pomiarowa."
+                                   AccessibleText="Pole elektryczne jest sumą wskazania odbiornika, poprawki antenowej i tłumienia kabla."/>
 
       <Border Grid.Column="1"
               Background="#EEF4FF"
@@ -41,21 +28,17 @@
           <TextBlock Text="{Binding ExpandedUncertaintyText, StringFormat='U_E = {0} dB'}"
                      FontSize="17"
                      FontWeight="SemiBold"/>
-          <TextBlock Text="U_E = √(U_MR² + U_AF² + U_IL²)"
+          <TextBlock Text="Składniki niepewności są łączone metodą pierwiastka z sumy kwadratów."
                      TextWrapping="Wrap"/>
         </StackPanel>
       </Border>
     </Grid>
 
-    <Border Grid.Row="1"
-            Background="#F8FAFD"
-            BorderBrush="#E1E6EF"
-            BorderThickness="1"
-            CornerRadius="8"
-            Padding="10">
-      <TextBlock Text="Dla polaryzacji pionowej aplikacja wyznacza kąt elewacji oraz spadek zysku dipola półfalowego, a następnie przelicza go na dodatkową poprawkę antenową."
-                 TextWrapping="Wrap"/>
-    </Border>
+    <controls:MathFormulaControl Grid.Row="1"
+                                 Caption="NIEPEWNOŚĆ WYPADKOWA"
+                                 Latex="U_E=\sqrt{U_{MR}^2+U_{AF}^2+U_{IL}^2}"
+                                 Description="Dla polaryzacji pionowej program dodatkowo wyznacza kąt elewacji i zmianę zysku dipola."
+                                 AccessibleText="Niepewność pola jest pierwiastkiem z sumy kwadratów niepewności odbiornika, poprawki antenowej i kabla."/>
 
     <DataGrid Grid.Row="2"
               ItemsSource="{Binding Results}"

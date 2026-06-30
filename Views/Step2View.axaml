@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:CrosstalkAnalyzer.Controls"
              xmlns:vm="using:CrosstalkAnalyzer.ViewModels"
              x:Class="CrosstalkAnalyzer.Views.Step2View"
              x:DataType="vm:Step2ViewModel"
@@ -23,22 +24,11 @@
       </Border>
     </Grid>
 
-    <Border Grid.Row="1"
-            Background="#172B4D"
-            CornerRadius="10"
-            Padding="18,14">
-      <StackPanel Spacing="4">
-        <TextBlock Text="WZÓR"
-                   Foreground="#8FB3FF"
-                   FontSize="11"
-                   FontWeight="Bold"
-                   LetterSpacing="1.2"/>
-        <TextBlock Text="|Z|ₗᵢₙ = 10 ^ (|Z|dB / 20)"
-                   Foreground="White"
-                   FontFamily="Consolas"
-                   FontSize="21"/>
-      </StackPanel>
-    </Border>
+    <controls:MathFormulaControl Grid.Row="1"
+                                 Caption="KONWERSJA DO SKALI LINIOWEJ"
+                                 Latex="|Z|_{\mathrm{lin}}=10^{\frac{|Z|_{\mathrm{dB}}}{20}}"
+                                 Description="|Z|dB - moduł transmitancji w decybelach; |Z|lin - bezwymiarowy moduł w skali liniowej."
+                                 AccessibleText="Wartość liniowa modułu Z jest równa dziesięć do potęgi wartości w decybelach podzielonej przez dwadzieścia."/>
 
     <DataGrid Grid.Row="2"
               ItemsSource="{Binding Results}"
@@ -51,13 +41,13 @@
         <DataGridTextColumn Header="NEXT [dB]"
                             Width="1*"
                             Binding="{Binding NearDbText}"/>
-        <DataGridTextColumn Header="NEXT — skala liniowa"
+        <DataGridTextColumn Header="NEXT - skala liniowa"
                             Width="1.7*"
                             Binding="{Binding NearLinearText}"/>
         <DataGridTextColumn Header="FEXT [dB]"
                             Width="1*"
                             Binding="{Binding FarDbText}"/>
-        <DataGridTextColumn Header="FEXT — skala liniowa"
+        <DataGridTextColumn Header="FEXT - skala liniowa"
                             Width="1.7*"
                             Binding="{Binding FarLinearText}"/>
       </DataGrid.Columns>

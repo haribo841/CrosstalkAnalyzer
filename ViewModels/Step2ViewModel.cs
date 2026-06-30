@@ -31,13 +31,14 @@ public sealed class Step2ViewModel : ViewModelBase
                 FarDb = farDb,
                 NearLinear = nearLinear,
                 FarLinear = farLinear,
-                AnalyzerUncertaintyDb = band.AnalyzerUncertaintyDb,
+                NearAnalyzerUncertaintyDb = point.NearUncertaintyDb!.Value,
+                FarAnalyzerUncertaintyDb = point.FarUncertaintyDb!.Value,
                 NearDelta = CrosstalkLogic.CalculateDeltaZ(
                     nearLinear,
-                    band.AnalyzerUncertaintyDb),
+                    point.NearUncertaintyDb.Value),
                 FarDelta = CrosstalkLogic.CalculateDeltaZ(
                     farLinear,
-                    band.AnalyzerUncertaintyDb),
+                    point.FarUncertaintyDb.Value),
             });
         }
 
